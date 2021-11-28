@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) Chaldeaprjkt
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.chaldeaprjkt.gamespace"
+    android:sharedUserId="android.uid.system">
+
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+    <uses-permission android:name="android.permission.MANAGE_GAME_MODE" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <application
+        android:label="@string/app_label"
+        android:supportsRtl="true"
+        android:theme="@style/GameSpaceTheme">
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="true"
+            android:label="@string/settings_title">
+            <intent-filter>
+                <action android:name="com.android.settings.action.IA_SETTINGS" />
+            </intent-filter>
+
+            <meta-data
+                android:name="com.android.settings.category"
+                android:value="com.android.settings.category.ia.apps" />
+            <meta-data
+                android:name="com.android.settings.summary"
+                android:resource="@string/settings_summary" />
+        </activity>
+
+        <activity
+            android:name="io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity"
+            android:exported="false"
+            android:label="@string/app_selector_label" />
+
+        <service
+            android:name=".gamebar.TaskListenerService"
+            android:exported="true"
+            android:permission="io.chaldeaprjkt.gamespace.service.TaskListener">
+            <intent-filter>
+                <action android:name="io.chaldeaprjkt.gamespace.TaskListener" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".gamebar.GameBarService"
+            android:exported="true"
+            android:permission="io.chaldeaprjkt.gamespace.service.GameUtils">
+            <intent-filter>
+                <action android:name="io.chaldeaprjkt.gamespace.GameUtils" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".BootCompleteReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

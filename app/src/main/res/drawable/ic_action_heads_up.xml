@@ -1,0 +1,32 @@
+<!--
+    Copyright (C) 2020 Paranoid Android
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:tint="?android:attr/colorControlNormal"
+    android:viewportWidth="24.0"
+    android:viewportHeight="24.0">
+
+    <path
+        android:fillColor="@android:color/white"
+        android:fillType="evenOdd"
+        android:pathData="M 6 13 L 2 9 L 2 19 C 2 20.1 2.9 21 4 21 L 20 21 C 21.1 21 22 20.1 22 19 L 22 15 C 22 13.9 21.1 13 20 13 L 6 13 Z M 4 13.828 L 4 19 L 20 19 L 20 15 L 5.172 15 L 4 13.828 Z"
+        android:strokeWidth="1" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M 4 3 C 3.47 3 2.961 3.211 2.586 3.586 C 2.211 3.961 2 4.47 2 5 C 2 5.53 2.211 6.039 2.586 6.414 C 2.961 6.789 3.47 7 4 7 C 4.53 7 5.039 6.789 5.414 6.414 C 5.789 6.039 6 5.53 6 5 C 6 4.47 5.789 3.961 5.414 3.586 C 5.039 3.211 4.53 3 4 3 Z"
+        android:strokeWidth="1" />
+</vector>

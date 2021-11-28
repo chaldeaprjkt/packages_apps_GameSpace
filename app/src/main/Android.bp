@@ -1,0 +1,29 @@
+android_app {
+    name: "GameSpace",
+    platform_apis: true,
+    privileged: true,
+    certificate: "platform",
+    resource_dirs: ["res"],
+    defaults: [
+        "SettingsLibDefaults",
+    ],
+    srcs: [
+        "java/**/*.java",
+        "java/**/*.kt",
+        "java/**/*.aidl",
+    ],
+    aidl: {
+        local_include_dirs: ["java"],
+    },
+    static_libs: [
+        "androidx.core_core-ktx",
+        "androidx.appcompat_appcompat",
+        "androidx.preference_preference",
+        "kotlin-stdlib",
+        "kotlinx-coroutines-android",
+    ],
+    kotlincflags: [
+        "-Xuse-experimental=kotlin.Experimental",
+        "-Xuse-experimental=kotlin.ExperimentalStdlibApi",
+    ],
+}

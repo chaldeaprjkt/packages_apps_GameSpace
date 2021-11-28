@@ -1,0 +1,73 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    compileSdk 31
+
+    defaultConfig {
+        applicationId "io.chaldeaprjkt.gamespace"
+        minSdk 31
+        targetSdk 31
+        versionCode 99
+        versionName "0.1-beta"
+    }
+    signingConfigs {
+        platform {
+            storeFile file("platform.jks")
+            storePassword 'android'
+            keyAlias 'platform'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            debuggable true
+            signingConfig signingConfigs.platform
+        }
+        release {
+            debuggable true
+            signingConfig signingConfigs.platform
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    sourceSets {
+        main {
+            aidl.srcDirs = ['src/main/java']
+        }
+    }
+    lintOptions {
+        disable 'ContentDescription'
+        disable 'QueryAllPackagesPermission'
+        disable 'ProtectedPermissions'
+        disable 'OldTargetApi'
+        disable 'UseCompatLoadingForDrawables'
+        disable 'UnsafeProtectedBroadcastReceiver'
+        disable 'AppCompatCustomView'
+    }
+}
+
+dependencies {
+    compileOnly files("${rootDir}/prebuilts/framework.jar")
+    implementation project(path: ':SettingsLibParts')
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
+}
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs.add("-Xbootclasspath/p:${rootDir}/prebuilts/framework.jar")
+        }
+    }
+}
