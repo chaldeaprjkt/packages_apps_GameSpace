@@ -29,10 +29,13 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.chaldeaprjkt.gamespace.R
+import io.chaldeaprjkt.gamespace.data.DeviceSettings
 import io.chaldeaprjkt.gamespace.preferences.AppListPreferences
 
 
 class AppSelectorFragment : Fragment() {
+    private var settings: DeviceSettings? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,6 +47,7 @@ class AppSelectorFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        settings = context?.let { DeviceSettings(it) }
         view.findViewById<RecyclerView>(R.id.app_list)?.apply {
             setupAppListView(this)
         }
@@ -52,7 +56,11 @@ class AppSelectorFragment : Fragment() {
     private fun setupAppListView(view: RecyclerView) {
         val apps = view.context.packageManager
             .getInstalledApplications(PackageManager.GET_META_DATA)
-            .filter { it.packageName != context?.packageName && it.flags and ApplicationInfo.FLAG_SYSTEM == 0 }
+            .filter {
+                it.packageName != context?.packageName &&
+                        it.flags and ApplicationInfo.FLAG_SYSTEM == 0 &&
+                        settings?.userGames?.contains(it.packageName) == false
+            }
             .sortedBy { it.loadLabel(view.context.packageManager).toString().lowercase() }
 
 
