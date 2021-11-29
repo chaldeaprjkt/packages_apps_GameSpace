@@ -25,13 +25,13 @@ import android.content.IntentFilter
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
-import io.chaldeaprjkt.gamespace.data.DeviceSettings
+import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 
 
 class TaskListenerService : Service(), GameStackAction {
     private val taskManager by lazy { ActivityTaskManager.getService() }
-    private val settings by lazy { DeviceSettings(applicationContext) }
+    private val settings by lazy { SystemSettings(applicationContext) }
     private val listener by lazy {
         object : TaskStackListener() {
             override fun onTaskStackChanged() {

@@ -23,14 +23,14 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import io.chaldeaprjkt.gamespace.R
-import io.chaldeaprjkt.gamespace.data.DeviceSettings
+import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.preferences.AppListPreferences
 import io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity
 
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
     private var apps: AppListPreferences? = null
-    private var settings: DeviceSettings? = null
+    private var settings: SystemSettings? = null
 
     private val selectorResult =
         registerForActivityResult(
@@ -45,12 +45,12 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        settings = context?.let { DeviceSettings(it) }
-        apps = findPreference(DeviceSettings.KEY_GAME_LIST)
+        settings = context?.let { SystemSettings(it) }
+        apps = findPreference(SystemSettings.KEY_GAME_LIST)
 
         listOf(
-            DeviceSettings.KEY_AUTO_BRIGHTNESS_DISABLE,
-            DeviceSettings.KEY_HEADS_UP_DISABLE
+            SystemSettings.KEY_AUTO_BRIGHTNESS_DISABLE,
+            SystemSettings.KEY_HEADS_UP_DISABLE
         ).onEach {
             findPreference<SwitchPreference>(it)?.onPreferenceChangeListener = this
         }
@@ -64,11 +64,11 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
     override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
         when (preference?.key) {
-            DeviceSettings.KEY_AUTO_BRIGHTNESS_DISABLE -> {
+            SystemSettings.KEY_AUTO_BRIGHTNESS_DISABLE -> {
                 settings?.userNoAutoBrightness = newValue as Boolean
                 return true
             }
-            DeviceSettings.KEY_HEADS_UP_DISABLE -> {
+            SystemSettings.KEY_HEADS_UP_DISABLE -> {
                 settings?.userNoHeadsUp = newValue as Boolean
                 return true
             }

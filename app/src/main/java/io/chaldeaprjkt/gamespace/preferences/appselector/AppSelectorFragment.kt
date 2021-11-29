@@ -29,12 +29,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.chaldeaprjkt.gamespace.R
-import io.chaldeaprjkt.gamespace.data.DeviceSettings
+import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.preferences.AppListPreferences
 
 
 class AppSelectorFragment : Fragment() {
-    private var settings: DeviceSettings? = null
+    private var settings: SystemSettings? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,7 +47,7 @@ class AppSelectorFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        settings = context?.let { DeviceSettings(it) }
+        settings = context?.let { SystemSettings(it) }
         view.findViewById<RecyclerView>(R.id.app_list)?.apply {
             setupAppListView(this)
         }

@@ -31,7 +31,7 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.AppSettings
-import io.chaldeaprjkt.gamespace.data.DeviceSettings
+import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.data.SessionState
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 import io.chaldeaprjkt.gamespace.utils.dp2px
@@ -43,7 +43,7 @@ import kotlin.math.min
 
 class GameBarService : Service() {
     private val wm by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
-    private val settings by lazy { DeviceSettings(applicationContext) }
+    private val settings by lazy { SystemSettings(applicationContext) }
     private val appSettings by lazy { AppSettings(applicationContext) }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
     private val session by lazy { SessionState() }

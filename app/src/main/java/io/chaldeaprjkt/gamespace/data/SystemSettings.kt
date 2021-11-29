@@ -18,7 +18,7 @@ package io.chaldeaprjkt.gamespace.data
 import android.content.Context
 import android.provider.Settings
 
-class DeviceSettings(private val context: Context) {
+class SystemSettings(private val context: Context) {
 
     var systemHeadsUp
         get() =

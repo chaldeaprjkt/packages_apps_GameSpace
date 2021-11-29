@@ -27,7 +27,7 @@ import androidx.activity.result.ActivityResult
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import io.chaldeaprjkt.gamespace.R
-import io.chaldeaprjkt.gamespace.data.DeviceSettings
+import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity
 
 
@@ -35,11 +35,11 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
     PreferenceCategory(context, attrs), Preference.OnPreferenceClickListener {
 
     private val apps = mutableListOf<String>()
-    private var settings: DeviceSettings? = null
+    private var settings: SystemSettings? = null
 
     init {
         isOrderingAsAdded = false
-        settings = context?.let { DeviceSettings(it) }
+        settings = context?.let { SystemSettings(it) }
     }
 
     private val makeAddPref by lazy {
