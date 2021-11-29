@@ -16,25 +16,36 @@
 package io.chaldeaprjkt.gamespace.preferences.appselector
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.SearchView
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.preferences.AppListPreferences
+import com.android.settingslib.R as SettingsR
+import com.google.android.material.appbar.AppBarLayout
 
-
-class AppSelectorFragment : Fragment() {
+class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
+    MenuItem.OnActionExpandListener {
+    private var appListView: RecyclerView? = null
     private var settings: SystemSettings? = null
+    private var appListAdapter: AppListAdapter? = null
+    private var appBarLayout: AppBarLayout? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +53,7 @@ class AppSelectorFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
+        appBarLayout = activity?.findViewById(SettingsR.id.app_bar)
         return inflater.inflate(R.layout.app_selector, container, false)
     }
 
@@ -53,7 +65,18 @@ class AppSelectorFragment : Fragment() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.app_selector_menu, menu)
+        val searchMenuItem = menu.findItem(R.id.app_search_menu)
+        val searchView = searchMenuItem.actionView as SearchView
+        searchView.setOnQueryTextListener(this)
+        searchView.queryHint = getString(R.string.app_search_title)
+        searchMenuItem.setOnActionExpandListener(this)
+    }
+
     private fun setupAppListView(view: RecyclerView) {
+        appListView = view
         val apps = view.context.packageManager
             .getInstalledApplications(PackageManager.GET_META_DATA)
             .filter {
@@ -63,14 +86,14 @@ class AppSelectorFragment : Fragment() {
             }
             .sortedBy { it.loadLabel(view.context.packageManager).toString().lowercase() }
 
-
-        view.adapter = AppListAdapter(apps)
+        appListAdapter = AppListAdapter(apps)
+        view.adapter = appListAdapter
         view.layoutManager = LinearLayoutManager(view.context)
-        (view.adapter as AppListAdapter).onItemClick {
+        appListAdapter?.onItemClick {
             activity?.setResult(Activity.RESULT_OK, Intent().apply {
                 putExtra(AppListPreferences.EXTRA_APP, it.packageName)
             })
-            activity?.onBackPressed()
+            activity?.finish()
         }
     }
 
@@ -78,6 +101,7 @@ class AppSelectorFragment : Fragment() {
         RecyclerView.Adapter<AppListAdapter.AppViewHolder>() {
 
         private lateinit var onClick: (ApplicationInfo) -> Unit
+        private val filteredList = mutableListOf<ApplicationInfo>()
 
         class AppViewHolder(private val v: View) : RecyclerView.ViewHolder(v) {
             private val pm by lazy { v.context.packageManager }
@@ -90,7 +114,7 @@ class AppSelectorFragment : Fragment() {
         }
 
         override fun getItemCount(): Int {
-            return apps.size
+            return if (filteredList.isEmpty()) apps.size else filteredList.size
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
@@ -101,10 +125,11 @@ class AppSelectorFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
-            holder.bind(apps[position])
+            val displayApp = if (filteredList.isEmpty()) apps else filteredList
+            holder.bind(displayApp[position])
             holder.itemView.setOnClickListener {
                 if (::onClick.isInitialized) {
-                    onClick.invoke(apps[position])
+                    onClick.invoke(displayApp[position])
                 }
             }
         }
@@ -112,6 +137,39 @@ class AppSelectorFragment : Fragment() {
         fun onItemClick(action: (ApplicationInfo) -> Unit) {
             onClick = action
         }
+
+        fun filterWith(context: Context?, text: String?) {
+            val pm = context?.packageManager ?: return
+            val rText = ".*${text}.*".toRegex(RegexOption.IGNORE_CASE)
+            apps.filter { it.loadLabel(pm).contains(rText) }
+                .takeIf { it.isNotEmpty() }
+                ?.let {
+                    filteredList.clear()
+                    filteredList.addAll(it)
+                    notifyDataSetChanged()
+                } ?: let {
+                filteredList.clear()
+                notifyDataSetChanged()
+            }
+        }
     }
 
+    override fun onQueryTextSubmit(query: String?) = false
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        appListAdapter?.filterWith(context, newText)
+        return false
+    }
+
+    override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+        appBarLayout?.setExpanded(false, false)
+        appListView?.let { ViewCompat.setNestedScrollingEnabled(it, false) }
+        return true
+    }
+
+    override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+        appBarLayout?.setExpanded(false, false)
+        appListView?.let { ViewCompat.setNestedScrollingEnabled(it, true) }
+        return true
+    }
 }

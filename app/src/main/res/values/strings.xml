@@ -26,4 +26,5 @@
     <string name="game_list_title">Library</string>
     <string name="game_remove_message">Are you sure you want to remove %1$s from your library ?</string>
     <string name="app_label">Game Space</string>
+    <string name="app_search_title">Search app</string>
 </resources>

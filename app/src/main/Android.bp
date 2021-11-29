@@ -19,6 +19,7 @@ android_app {
         "androidx.core_core-ktx",
         "androidx.appcompat_appcompat",
         "androidx.preference_preference",
+        "com.google.android.material_material",
         "kotlin-stdlib",
         "kotlinx-coroutines-android",
     ],
