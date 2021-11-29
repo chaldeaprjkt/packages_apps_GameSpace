@@ -84,7 +84,7 @@ class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
             }
             .sortedBy { it.loadLabel(view.context.packageManager).toString().lowercase() }
 
-        appsAdapter = AppsAdapter(apps)
+        appsAdapter = AppsAdapter(view.context.packageManager, apps)
         view.adapter = appsAdapter
         view.layoutManager = LinearLayoutManager(view.context)
         appsAdapter?.onItemClick {
@@ -98,7 +98,7 @@ class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
     override fun onQueryTextSubmit(query: String?) = false
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        appsAdapter?.filterWith(context, newText)
+        appsAdapter?.filterWith(newText)
         return false
     }
 

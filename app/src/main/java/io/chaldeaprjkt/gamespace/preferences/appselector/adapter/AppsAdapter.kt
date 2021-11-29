@@ -15,21 +15,25 @@
  */
 package io.chaldeaprjkt.gamespace.preferences.appselector.adapter
 
-import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import io.chaldeaprjkt.gamespace.R
 
-class AppsAdapter(private val apps: List<ApplicationInfo>) :
-    RecyclerView.Adapter<AppsItemViewHolder>() {
+class AppsAdapter(private val pm: PackageManager, private val apps: List<ApplicationInfo>) :
+    ListAdapter<ApplicationInfo, AppsItemViewHolder>(DiffCallback(pm)) {
 
     private lateinit var onClick: (ApplicationInfo) -> Unit
-    private val filteredList = mutableListOf<ApplicationInfo>()
+
+    init {
+        submitList(apps)
+    }
 
     override fun getItemCount(): Int {
-        return if (filteredList.isEmpty()) apps.size else filteredList.size
+        return currentList.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppsItemViewHolder {
@@ -40,11 +44,10 @@ class AppsAdapter(private val apps: List<ApplicationInfo>) :
     }
 
     override fun onBindViewHolder(holder: AppsItemViewHolder, position: Int) {
-        val displayApp = if (filteredList.isEmpty()) apps else filteredList
-        holder.bind(displayApp[position])
+        holder.bind(currentList[position])
         holder.itemView.setOnClickListener {
             if (::onClick.isInitialized) {
-                onClick.invoke(displayApp[position])
+                onClick.invoke(currentList[position])
             }
         }
     }
@@ -53,18 +56,19 @@ class AppsAdapter(private val apps: List<ApplicationInfo>) :
         onClick = action
     }
 
-    fun filterWith(context: Context?, text: String?) {
-        val pm = context?.packageManager ?: return
+    fun filterWith(text: String?) {
         val rText = ".*${text}.*".toRegex(RegexOption.IGNORE_CASE)
         apps.filter { it.loadLabel(pm).contains(rText) }
             .takeIf { it.isNotEmpty() }
-            ?.let {
-                filteredList.clear()
-                filteredList.addAll(it)
-                notifyDataSetChanged()
-            } ?: let {
-            filteredList.clear()
-            notifyDataSetChanged()
-        }
+            ?.run(::submitList) ?: submitList(apps)
+    }
+
+    private class DiffCallback(private val pm: PackageManager) :
+        DiffUtil.ItemCallback<ApplicationInfo>() {
+        override fun areItemsTheSame(oldItem: ApplicationInfo, newItem: ApplicationInfo) =
+            oldItem.loadLabel(pm) == newItem.loadLabel(pm)
+
+        override fun areContentsTheSame(oldItem: ApplicationInfo, newItem: ApplicationInfo) =
+            oldItem.packageName == newItem.packageName
     }
 }
