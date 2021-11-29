@@ -16,14 +16,11 @@
 package io.chaldeaprjkt.gamespace.preferences.appselector
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
@@ -34,12 +31,13 @@ import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.preferences.AppListPreferences
 import com.android.settingslib.R as SettingsR
 import com.google.android.material.appbar.AppBarLayout
+import io.chaldeaprjkt.gamespace.preferences.appselector.adapter.AppsAdapter
 
 class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
     MenuItem.OnActionExpandListener {
     private var appListView: RecyclerView? = null
     private var settings: SystemSettings? = null
-    private var appListAdapter: AppListAdapter? = null
+    private var appsAdapter: AppsAdapter? = null
     private var appBarLayout: AppBarLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,10 +84,10 @@ class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
             }
             .sortedBy { it.loadLabel(view.context.packageManager).toString().lowercase() }
 
-        appListAdapter = AppListAdapter(apps)
-        view.adapter = appListAdapter
+        appsAdapter = AppsAdapter(apps)
+        view.adapter = appsAdapter
         view.layoutManager = LinearLayoutManager(view.context)
-        appListAdapter?.onItemClick {
+        appsAdapter?.onItemClick {
             activity?.setResult(Activity.RESULT_OK, Intent().apply {
                 putExtra(AppListPreferences.EXTRA_APP, it.packageName)
             })
@@ -97,67 +95,10 @@ class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
         }
     }
 
-    class AppListAdapter(private val apps: List<ApplicationInfo>) :
-        RecyclerView.Adapter<AppListAdapter.AppViewHolder>() {
-
-        private lateinit var onClick: (ApplicationInfo) -> Unit
-        private val filteredList = mutableListOf<ApplicationInfo>()
-
-        class AppViewHolder(private val v: View) : RecyclerView.ViewHolder(v) {
-            private val pm by lazy { v.context.packageManager }
-
-            fun bind(app: ApplicationInfo) {
-                v.findViewById<TextView>(R.id.app_name)?.text = app.loadLabel(pm)
-                v.findViewById<TextView>(R.id.app_summary)?.text = app.packageName
-                v.findViewById<ImageView>(R.id.app_icon)?.setImageDrawable(app.loadIcon(pm))
-            }
-        }
-
-        override fun getItemCount(): Int {
-            return if (filteredList.isEmpty()) apps.size else filteredList.size
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-            return AppViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.app_selector_item, parent, false)
-            )
-        }
-
-        override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
-            val displayApp = if (filteredList.isEmpty()) apps else filteredList
-            holder.bind(displayApp[position])
-            holder.itemView.setOnClickListener {
-                if (::onClick.isInitialized) {
-                    onClick.invoke(displayApp[position])
-                }
-            }
-        }
-
-        fun onItemClick(action: (ApplicationInfo) -> Unit) {
-            onClick = action
-        }
-
-        fun filterWith(context: Context?, text: String?) {
-            val pm = context?.packageManager ?: return
-            val rText = ".*${text}.*".toRegex(RegexOption.IGNORE_CASE)
-            apps.filter { it.loadLabel(pm).contains(rText) }
-                .takeIf { it.isNotEmpty() }
-                ?.let {
-                    filteredList.clear()
-                    filteredList.addAll(it)
-                    notifyDataSetChanged()
-                } ?: let {
-                filteredList.clear()
-                notifyDataSetChanged()
-            }
-        }
-    }
-
     override fun onQueryTextSubmit(query: String?) = false
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        appListAdapter?.filterWith(context, newText)
+        appsAdapter?.filterWith(context, newText)
         return false
     }
 
