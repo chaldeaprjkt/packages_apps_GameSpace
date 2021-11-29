@@ -272,7 +272,7 @@ class GameBarService : Service() {
     }
 
     private fun dockCollapsedMenu() {
-        val halfWidth = wm.defaultDisplay.width / 2
+        val halfWidth = wm.maximumWindowMetrics.bounds.width() / 2
         if (windowParams.x < 0) {
             containerCollapsed.rotation = 180f
             containerCollapsed.translationX = -22f
@@ -285,7 +285,8 @@ class GameBarService : Service() {
             windowParams.x = halfWidth
         }
         val safeArea = getStatusBarHeight()?.plus(4.dp2px) ?: 32.dp2px
-        windowParams.y = max(min(windowParams.y, wm.defaultDisplay.height - safeArea), safeArea)
+        val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
+        windowParams.y = max(min(windowParams.y, safeHeight), safeArea)
         updateLayout()
     }
 

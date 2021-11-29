@@ -27,7 +27,7 @@ class AppSettings(private val context: Context) {
     private val wm by lazy { context.getSystemService(Service.WINDOW_SERVICE) as WindowManager }
 
     var x
-        get() = db.getInt("offset_x", wm.defaultDisplay.width / 2)
+        get() = db.getInt("offset_x", wm.maximumWindowMetrics.bounds.width() / 2)
         set(point) = db.edit().putInt("offset_x", point).apply()
 
     var y
