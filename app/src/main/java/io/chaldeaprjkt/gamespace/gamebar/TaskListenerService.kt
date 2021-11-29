@@ -53,7 +53,7 @@ class TaskListenerService : Service(), GameStackAction {
     override fun onCreate() {
         try {
             taskManager.registerTaskStackListener(listener)
-            ScreenUtils.init(this)
+            ScreenUtils.bind(this)
         } catch (e: RemoteException) {
             Log.d(TAG, e.toString())
         }
@@ -72,6 +72,7 @@ class TaskListenerService : Service(), GameStackAction {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        ScreenUtils.unbind(this)
         unregisterReceiver(screenReceiver)
         super.onDestroy()
     }

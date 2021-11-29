@@ -82,6 +82,7 @@
             android:layout_width="@dimen/actions_size"
             android:layout_height="@dimen/actions_size"
             android:layout_marginTop="5dp"
+            android:background="@drawable/ripple_circle_record"
             android:padding="8dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_action_record" />

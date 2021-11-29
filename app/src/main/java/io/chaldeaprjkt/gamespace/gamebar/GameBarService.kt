@@ -29,10 +29,11 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.view.isVisible
+import com.android.systemui.screenrecord.IRecordingCallback
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.AppSettings
-import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.data.SessionState
+import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 import io.chaldeaprjkt.gamespace.utils.dp2px
 import io.chaldeaprjkt.gamespace.utils.getStatusBarHeight
@@ -217,8 +218,33 @@ class GameBarService : Service() {
 
     private fun recorderButton() {
         val actionRecorder = rootView.findViewById<ImageButton>(R.id.action_record)
-        // TODO: Implement working actionRecorder
-        actionRecorder.isVisible = false
+        val recorder = ScreenUtils.recorder ?: let { actionRecorder.isVisible = false; return }
+        recorder.addRecordingCallback(object : IRecordingCallback.Stub() {
+            override fun onRecordingStart() {
+                handler.post {
+                    actionRecorder.isSelected = true
+                }
+            }
+
+            override fun onRecordingEnd() {
+                handler.post {
+                    actionRecorder.isSelected = false
+                }
+            }
+        })
+        actionRecorder.setOnClickListener {
+            if (recorder.isStarting) {
+                return@setOnClickListener
+            }
+
+            if (!recorder.isRecording) {
+                recorder.startRecording()
+            } else {
+                recorder.stopRecording()
+            }
+
+            expandGameBar = false
+        }
     }
 
     private fun headsUpButton() {
