@@ -16,6 +16,7 @@
 package io.chaldeaprjkt.gamespace.data
 
 import android.content.Context
+import android.os.UserHandle
 import android.provider.Settings
 
 class SystemSettings(private val context: Context) {
@@ -79,9 +80,36 @@ class SystemSettings(private val context: Context) {
             )
         }
 
+    var threeScreenshot
+        get() = Settings.System.getInt(
+            context.contentResolver,
+            Settings.System.THREE_FINGER_GESTURE,
+            0
+        ) == 1
+        set(value) {
+            Settings.System.putInt(
+                context.contentResolver,
+                Settings.System.THREE_FINGER_GESTURE,
+                if (value) 1 else 0
+            )
+        }
+
+    var userNoThreeScreenshot
+        get() = Settings.System.getInt(
+            context.contentResolver,
+            KEY_3SCREENSHOT_DISABLE,
+            0
+        ) == 1
+        set(value) {
+            Settings.System.putInt(
+                context.contentResolver, KEY_3SCREENSHOT_DISABLE, if (value) 1 else 0
+            )
+        }
+
     companion object {
         const val KEY_GAME_LIST = "gamespace_game_list"
         const val KEY_HEADS_UP_DISABLE = "gamespace_heads_up_disabled"
         const val KEY_AUTO_BRIGHTNESS_DISABLE = "gamespace_auto_brightness_disabled"
+        const val KEY_3SCREENSHOT_DISABLE = "gamespace_tfgesture_disabled"
     }
 }

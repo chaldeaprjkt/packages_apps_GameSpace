@@ -18,4 +18,5 @@ package io.chaldeaprjkt.gamespace.data
 data class SessionState(
     var autoBrightness: Boolean? = null,
     var headsUp: Boolean? = null,
+    var threeScreenshot: Boolean? = null,
 )

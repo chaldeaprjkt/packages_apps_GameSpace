@@ -27,4 +27,6 @@
     <string name="game_remove_message">Are you sure you want to remove %1$s from your library ?</string>
     <string name="app_label">Game Space</string>
     <string name="app_search_title">Search app</string>
+    <string name="three_screenshot_disabled_summary">Temporary disable the three-finger-swipe screenshot gesture while in-game</string>
+    <string name="three_screenshot_disabled_title">Disable screenshot gesture</string>
 </resources>

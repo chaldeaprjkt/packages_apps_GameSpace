@@ -110,11 +110,15 @@ class GameBarService : Service() {
         handler.postDelayed(firstPaint, 1000)
         session.headsUp = settings.systemHeadsUp
         session.autoBrightness = settings.autoBrightness
+        session.threeScreenshot = settings.threeScreenshot
         if (settings.userNoHeadsUp) {
             settings.systemHeadsUp = false
         }
         if (settings.userNoAutoBrightness) {
             settings.autoBrightness = false
+        }
+        if (settings.userNoThreeScreenshot) {
+            settings.threeScreenshot = false
         }
     }
 
@@ -127,6 +131,9 @@ class GameBarService : Service() {
         }
         if (settings.userNoAutoBrightness) {
             session.autoBrightness?.let { settings.autoBrightness = it }
+        }
+        if (settings.userNoThreeScreenshot) {
+            session.threeScreenshot?.let { settings.threeScreenshot = it }
         }
     }
 

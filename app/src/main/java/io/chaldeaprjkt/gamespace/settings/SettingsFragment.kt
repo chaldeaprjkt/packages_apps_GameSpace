@@ -50,7 +50,8 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
         listOf(
             SystemSettings.KEY_AUTO_BRIGHTNESS_DISABLE,
-            SystemSettings.KEY_HEADS_UP_DISABLE
+            SystemSettings.KEY_HEADS_UP_DISABLE,
+            SystemSettings.KEY_3SCREENSHOT_DISABLE
         ).onEach {
             findPreference<SwitchPreference>(it)?.onPreferenceChangeListener = this
         }
@@ -70,6 +71,10 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             }
             SystemSettings.KEY_HEADS_UP_DISABLE -> {
                 settings?.userNoHeadsUp = newValue as Boolean
+                return true
+            }
+            SystemSettings.KEY_3SCREENSHOT_DISABLE -> {
+                settings?.userNoThreeScreenshot = newValue as Boolean
                 return true
             }
         }
