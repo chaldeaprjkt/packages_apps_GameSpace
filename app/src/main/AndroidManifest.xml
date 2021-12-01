@@ -27,13 +27,12 @@
     <uses-permission android:name="com.android.systemui.permission.SCREEN_RECORDING" />
 
     <application
-        android:label="@string/app_label"
+        android:label="@string/settings_title"
         android:supportsRtl="true"
         android:theme="@style/GameSpaceTheme">
         <activity
             android:name=".settings.SettingsActivity"
-            android:exported="true"
-            android:label="@string/settings_title">
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.android.settings.action.IA_SETTINGS" />
             </intent-filter>

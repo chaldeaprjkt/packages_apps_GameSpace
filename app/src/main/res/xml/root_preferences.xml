@@ -16,20 +16,23 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
-        android:key="gamespace_heads_up_disabled"
-        android:summary="@string/heads_up_disabled_summary"
-        android:title="@string/heads_up_disabled_title" />
+    <PreferenceCategory android:title="In-game">
+        <SwitchPreference
+            android:key="gamespace_heads_up_disabled"
+            android:summary="@string/heads_up_disabled_summary"
+            android:title="@string/heads_up_disabled_title" />
 
-    <SwitchPreference
-        android:key="gamespace_auto_brightness_disabled"
-        android:summary="@string/auto_brightness_disabled_summary"
-        android:title="@string/auto_brightness_disabled_title" />
+        <SwitchPreference
+            android:key="gamespace_auto_brightness_disabled"
+            android:summary="@string/auto_brightness_disabled_summary"
+            android:title="@string/auto_brightness_disabled_title" />
 
-    <SwitchPreference
-        android:key="gamespace_tfgesture_disabled"
-        android:summary="@string/three_screenshot_disabled_summary"
-        android:title="@string/three_screenshot_disabled_title" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="gamespace_tfgesture_disabled"
+            android:summary="@string/three_screenshot_disabled_summary"
+            android:title="@string/three_screenshot_disabled_title" />
+    </PreferenceCategory>
 
     <io.chaldeaprjkt.gamespace.preferences.AppListPreferences
         android:key="gamespace_game_list"

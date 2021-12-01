@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) Chaldeaprjkt
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +15,16 @@
   -->
 
 <resources>
-    <string name="settings_title">Game settings</string>
+    <string name="settings_title">Game Space</string>
     <string name="settings_summary">Manage your gaming setup</string>
-    <string name="app_selector_label">Select game</string>
-    <string name="auto_brightness_disabled_title">Disable Auto-brightness</string>
-    <string name="auto_brightness_disabled_summary">Keep brightness settled when entering the game</string>
-    <string name="heads_up_disabled_title">Disable Heads-Up</string>
-    <string name="heads_up_disabled_summary">Disable Notification heads-up when entering the game</string>
+    <string name="app_selector_label">Pick your game</string>
+    <string name="auto_brightness_disabled_title">Disable auto-brightness</string>
+    <string name="auto_brightness_disabled_summary">Keep brightness settled while in-game</string>
+    <string name="heads_up_disabled_title">Disable heads-up</string>
+    <string name="heads_up_disabled_summary">Disable Notification heads-up while in-game</string>
     <string name="game_list_title">Library</string>
     <string name="game_remove_message">Are you sure you want to remove %1$s from your library ?</string>
-    <string name="app_label">Game Space</string>
-    <string name="app_search_title">Search app</string>
-    <string name="three_screenshot_disabled_summary">Temporary disable the three-finger-swipe screenshot gesture while in-game</string>
-    <string name="three_screenshot_disabled_title">Disable screenshot gesture</string>
+    <string name="app_search_title">Search</string>
+    <string name="three_screenshot_disabled_summary">Temporary disable three-fingers-swipe screenshot gesture while in-game</string>
+    <string name="three_screenshot_disabled_title">Disable swipe to screenshot</string>
 </resources>
