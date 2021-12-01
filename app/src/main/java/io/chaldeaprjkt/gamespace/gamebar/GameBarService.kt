@@ -20,8 +20,8 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.graphics.Point
+import android.os.Binder
 import android.os.Handler
-import android.os.IBinder
 import android.os.Looper
 import android.view.*
 import android.widget.FrameLayout
@@ -38,11 +38,16 @@ import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 import io.chaldeaprjkt.gamespace.utils.dp2px
 import io.chaldeaprjkt.gamespace.utils.getStatusBarHeight
 import io.chaldeaprjkt.gamespace.utils.registerDraggableTouchListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 
 
 class GameBarService : Service() {
+    private val scope = CoroutineScope(Job() + Dispatchers.Main)
     private val wm by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
     private val settings by lazy { SystemSettings(applicationContext) }
     private val appSettings by lazy { AppSettings(applicationContext) }
@@ -74,6 +79,7 @@ class GameBarService : Service() {
     private lateinit var containerCollapsed: LinearLayout
     private lateinit var menuExpanded: ImageButton
     private lateinit var menuCollapsed: ImageButton
+    private val binder = GameBarBinder()
     private val firstPaint = Runnable { initActions() }
     private var expandGameBar: Boolean
         get() = containerExpanded.isVisible
@@ -97,10 +103,14 @@ class GameBarService : Service() {
             ACTION_STOP -> onActionStop()
             ACTION_START -> onActionStart()
         }
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    override fun onBind(intent: Intent) = binder
+
+    inner class GameBarBinder : Binder() {
+        fun getService() = this@GameBarService
+    }
 
     override fun onDestroy() {
         onActionStop()
@@ -120,6 +130,10 @@ class GameBarService : Service() {
         }
     }
 
+    // for client service
+    fun onGameStart() = scope.launch { onActionStart() }
+    fun onGameLeave() = scope.launch { onActionStop() }
+
     private fun onActionStart() {
         applyCustomSettings()
         rootView.isVisible = false
@@ -127,7 +141,7 @@ class GameBarService : Service() {
         if (!rootView.isAttachedToWindow) {
             wm.addView(rootView, windowParams)
         }
-        handler.postDelayed(firstPaint, 1000)
+        handler.postDelayed(firstPaint, 500)
     }
 
     private fun onActionStop() {

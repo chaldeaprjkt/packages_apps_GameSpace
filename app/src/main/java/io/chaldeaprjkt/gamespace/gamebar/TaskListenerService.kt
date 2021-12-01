@@ -18,10 +18,7 @@ package io.chaldeaprjkt.gamespace.gamebar
 import android.app.ActivityTaskManager
 import android.app.Service
 import android.app.TaskStackListener
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
@@ -29,7 +26,7 @@ import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 
 
-class TaskListenerService : Service(), GameStackAction {
+class TaskListenerService : Service() {
     private val taskManager by lazy { ActivityTaskManager.getService() }
     private val settings by lazy { SystemSettings(applicationContext) }
     private val listener by lazy {
@@ -46,9 +43,17 @@ class TaskListenerService : Service(), GameStackAction {
             }
         }
     }
+    private val gameBarConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            gameBar = (service as GameBarService.GameBarBinder).getService()
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {}
+    }
 
     private var previousApp = UNKNOWN_APP
     private var sessionKey = UNKNOWN_APP
+    private lateinit var gameBar: GameBarService
 
     override fun onCreate() {
         try {
@@ -61,6 +66,10 @@ class TaskListenerService : Service(), GameStackAction {
             addAction(Intent.ACTION_SCREEN_OFF)
             addAction(Intent.ACTION_SCREEN_ON)
         })
+        Intent(this, GameBarService::class.java).apply {
+            bindService(this, gameBarConnection, Context.BIND_AUTO_CREATE)
+        }
+
         super.onCreate()
     }
 
@@ -72,6 +81,7 @@ class TaskListenerService : Service(), GameStackAction {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        unbindService(gameBarConnection)
         ScreenUtils.unbind(this)
         unregisterReceiver(screenReceiver)
         super.onDestroy()
@@ -85,9 +95,9 @@ class TaskListenerService : Service(), GameStackAction {
             if (currentApp == previousApp) return
             if (isGame(currentApp)) {
                 sessionKey = currentApp
-                onGameEnter(this, currentApp)
+                gameBar.onGameStart()
             } else if (sessionKey != UNKNOWN_APP) {
-                onGameLeave(this, previousApp)
+                gameBar.onGameLeave()
                 sessionKey = UNKNOWN_APP
             }
 
