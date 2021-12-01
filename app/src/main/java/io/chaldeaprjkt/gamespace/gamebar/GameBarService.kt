@@ -91,7 +91,6 @@ class GameBarService : Service() {
         menuCollapsed = rootView.findViewById(R.id.action_menu_collapsed)
     }
 
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         when (intent?.action) {
@@ -101,13 +100,44 @@ class GameBarService : Service() {
         return START_NOT_STICKY
     }
 
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onDestroy() {
+        onActionStop()
+        super.onDestroy()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (!rootView.isVisible) {
+            handler.removeCallbacks(firstPaint)
+            handler.postDelayed({
+                firstPaint.run()
+                dockCollapsedMenu()
+            }, 100)
+        } else {
+            dockCollapsedMenu()
+        }
+    }
+
     private fun onActionStart() {
+        applyCustomSettings()
         rootView.isVisible = false
         rootView.alpha = 0f
         if (!rootView.isAttachedToWindow) {
             wm.addView(rootView, windowParams)
         }
         handler.postDelayed(firstPaint, 1000)
+    }
+
+    private fun onActionStop() {
+        restoreCustomSettings()
+        if (rootView.isAttachedToWindow) {
+            wm.removeViewImmediate(rootView)
+        }
+    }
+
+    private fun applyCustomSettings() {
         session.headsUp = settings.systemHeadsUp
         session.autoBrightness = settings.autoBrightness
         session.threeScreenshot = settings.threeScreenshot
@@ -122,10 +152,7 @@ class GameBarService : Service() {
         }
     }
 
-    private fun onActionStop() {
-        if (rootView.isAttachedToWindow) {
-            wm.removeViewImmediate(rootView)
-        }
+    private fun restoreCustomSettings() {
         if (settings.userNoHeadsUp) {
             session.headsUp?.let { settings.systemHeadsUp = it }
         }
@@ -150,8 +177,10 @@ class GameBarService : Service() {
             .apply { duration = 300 }
             .start()
         expandGameBar = false
+        windowParams.x = appSettings.x
+        windowParams.y = appSettings.y
+        dockCollapsedMenu()
 
-        setupLocation()
         menuButton()
         screenshotButton()
         headsUpButton()
@@ -170,7 +199,9 @@ class GameBarService : Service() {
                 initPoint = { Point(windowParams.x, windowParams.y) },
                 listener = { x, y ->
                     onBarDragged(true)
-                    setPosition(x, y)
+                    windowParams.x = x
+                    windowParams.y = y
+                    updateLayout()
                 },
                 onComplete = {
                     onBarDragged(false)
@@ -266,18 +297,6 @@ class GameBarService : Service() {
         }
     }
 
-    private fun setupLocation() {
-        windowParams.x = appSettings.x
-        windowParams.y = appSettings.y
-        dockCollapsedMenu()
-    }
-
-    private fun setPosition(x: Int, y: Int) {
-        windowParams.x = x
-        windowParams.y = y
-        updateLayout()
-    }
-
     private fun dockCollapsedMenu() {
         val halfWidth = wm.maximumWindowMetrics.bounds.width() / 2
         if (windowParams.x < 0) {
@@ -295,26 +314,6 @@ class GameBarService : Service() {
         val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
         windowParams.y = max(min(windowParams.y, safeHeight), safeArea)
         updateLayout()
-    }
-
-    override fun onBind(intent: Intent?): IBinder? = null
-
-    override fun onDestroy() {
-        onActionStop()
-        super.onDestroy()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        if (!rootView.isVisible) {
-            handler.removeCallbacks(firstPaint)
-            handler.postDelayed({
-                firstPaint.run()
-                dockCollapsedMenu()
-            }, 100)
-        } else {
-            dockCollapsedMenu()
-        }
     }
 
     companion object {
