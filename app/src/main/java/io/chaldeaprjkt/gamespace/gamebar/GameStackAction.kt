@@ -17,7 +17,6 @@ package io.chaldeaprjkt.gamespace.gamebar
 
 import android.content.Context
 import android.content.Intent
-import android.os.UserHandle
 import android.util.Log
 import io.chaldeaprjkt.gamespace.gamebar.GameBarService.Companion.ACTION_START
 import io.chaldeaprjkt.gamespace.gamebar.GameBarService.Companion.ACTION_STOP
@@ -26,15 +25,13 @@ import io.chaldeaprjkt.gamespace.gamebar.GameBarService.Companion.TAG
 interface GameStackAction {
     fun onGameEnter(context: Context, packageName: String) {
         Log.d(TAG, "Starting Game session for $packageName")
-        context.startServiceAsUser(Intent(context, GameBarService::class.java).apply {
-            action = ACTION_START
-        }, UserHandle.CURRENT)
+        context.startService(Intent(context, GameBarService::class.java)
+            .apply { action = ACTION_START })
     }
 
     fun onGameLeave(context: Context, packageName: String) {
         Log.d(TAG, "Game session ended for $packageName")
-        context.startServiceAsUser(Intent(context, GameBarService::class.java).apply {
-            action = ACTION_STOP
-        }, UserHandle.CURRENT)
+        context.startService(Intent(context, GameBarService::class.java)
+            .apply { action = ACTION_STOP })
     }
 }
