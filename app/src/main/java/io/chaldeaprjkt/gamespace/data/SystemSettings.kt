@@ -16,95 +16,78 @@
 package io.chaldeaprjkt.gamespace.data
 
 import android.content.Context
-import android.os.UserHandle
 import android.provider.Settings
 
-class SystemSettings(private val context: Context) {
+class SystemSettings(context: Context) {
+
+    private val resolver = context.contentResolver
 
     var systemHeadsUp
         get() =
-            Settings.Global.getInt(
-                context.contentResolver,
-                Settings.Global.HEADS_UP_NOTIFICATIONS_ENABLED, 1
-            ) == 1
-        set(enabled) {
+            Settings.Global.getInt(resolver, Settings.Global.HEADS_UP_NOTIFICATIONS_ENABLED, 1) == 1
+        set(it) {
             Settings.Global.putInt(
-                context.contentResolver,
-                Settings.Global.HEADS_UP_NOTIFICATIONS_ENABLED, if (enabled) 1 else 0
+                resolver,
+                Settings.Global.HEADS_UP_NOTIFICATIONS_ENABLED,
+                it.toInt()
             )
         }
 
     var autoBrightness
         get() =
             Settings.System.getInt(
-                context.contentResolver,
+                resolver,
                 Settings.System.SCREEN_BRIGHTNESS_MODE,
                 Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
             ) ==
                     Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
         set(auto) {
             Settings.System.putInt(
-                context.contentResolver,
+                resolver,
                 Settings.System.SCREEN_BRIGHTNESS_MODE,
                 if (auto) Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
                 else Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
             )
         }
 
+    var threeScreenshot
+        get() = Settings.System.getInt(resolver, Settings.System.THREE_FINGER_GESTURE, 0) == 1
+        set(it) {
+            Settings.System.putInt(resolver, Settings.System.THREE_FINGER_GESTURE, it.toInt())
+        }
+
     var userGames
         get() =
-            Settings.System.getString(context.contentResolver, KEY_GAME_LIST)
+            Settings.System.getString(resolver, KEY_GAME_LIST)
                 ?.split(";")
                 ?.toList()?.filter { it.isNotEmpty() } ?: emptyList()
         set(games) {
             Settings.System.putString(
-                context.contentResolver,
-                KEY_GAME_LIST,
+                resolver, KEY_GAME_LIST,
                 if (games.isEmpty()) "" else
                     games.joinToString(";")
             )
         }
 
     var userNoHeadsUp
-        get() = Settings.System.getInt(context.contentResolver, KEY_HEADS_UP_DISABLE, 0) == 1
-        set(value) {
-            Settings.System.putInt(
-                context.contentResolver, KEY_HEADS_UP_DISABLE, if (value) 1 else 0
-            )
-        }
-    var userNoAutoBrightness
-        get() = Settings.System.getInt(context.contentResolver, KEY_AUTO_BRIGHTNESS_DISABLE, 0) == 1
-        set(value) {
-            Settings.System.putInt(
-                context.contentResolver, KEY_AUTO_BRIGHTNESS_DISABLE, if (value) 1 else 0
-            )
+        get() = Settings.System.getInt(resolver, KEY_HEADS_UP_DISABLE, 0) == 1
+        set(it) {
+            Settings.System.putInt(resolver, KEY_HEADS_UP_DISABLE, it.toInt())
         }
 
-    var threeScreenshot
-        get() = Settings.System.getInt(
-            context.contentResolver,
-            Settings.System.THREE_FINGER_GESTURE,
-            0
-        ) == 1
-        set(value) {
-            Settings.System.putInt(
-                context.contentResolver,
-                Settings.System.THREE_FINGER_GESTURE,
-                if (value) 1 else 0
-            )
+    var userNoAutoBrightness
+        get() = Settings.System.getInt(resolver, KEY_AUTO_BRIGHTNESS_DISABLE, 0) == 1
+        set(it) {
+            Settings.System.putInt(resolver, KEY_AUTO_BRIGHTNESS_DISABLE, it.toInt())
         }
 
     var userNoThreeScreenshot
-        get() = Settings.System.getInt(
-            context.contentResolver,
-            KEY_3SCREENSHOT_DISABLE,
-            0
-        ) == 1
-        set(value) {
-            Settings.System.putInt(
-                context.contentResolver, KEY_3SCREENSHOT_DISABLE, if (value) 1 else 0
-            )
+        get() = Settings.System.getInt(resolver, KEY_3SCREENSHOT_DISABLE, 0) == 1
+        set(it) {
+            Settings.System.putInt(resolver, KEY_3SCREENSHOT_DISABLE, it.toInt())
         }
+
+    private fun Boolean.toInt() = if (this) 1 else 0
 
     companion object {
         const val KEY_GAME_LIST = "gamespace_game_list"
