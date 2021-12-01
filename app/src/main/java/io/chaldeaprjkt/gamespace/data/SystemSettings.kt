@@ -60,12 +60,13 @@ class SystemSettings(context: Context) {
         get() =
             Settings.System.getString(resolver, KEY_GAME_LIST)
                 ?.split(";")
-                ?.toList()?.filter { it.isNotEmpty() } ?: emptyList()
+                ?.toList()?.filter { it.isNotEmpty() }
+                ?.map { UserGame.fromSettings(it) } ?: emptyList()
         set(games) {
             Settings.System.putString(
                 resolver, KEY_GAME_LIST,
                 if (games.isEmpty()) "" else
-                    games.joinToString(";")
+                    games.joinToString(";") { it.toString() }
             )
         }
 

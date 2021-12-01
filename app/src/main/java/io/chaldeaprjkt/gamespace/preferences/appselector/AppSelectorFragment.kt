@@ -80,7 +80,7 @@ class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
             .filter {
                 it.packageName != context?.packageName &&
                         it.flags and ApplicationInfo.FLAG_SYSTEM == 0 &&
-                        settings?.userGames?.contains(it.packageName) == false
+                        settings?.userGames?.any { t -> t.packageName == it.packageName } == false
             }
             .sortedBy { it.loadLabel(view.context.packageManager).toString().lowercase() }
 

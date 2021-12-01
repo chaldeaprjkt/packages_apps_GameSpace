@@ -16,6 +16,7 @@
 package io.chaldeaprjkt.gamespace.gamebar
 
 import android.app.ActivityTaskManager
+import android.app.GameManager
 import android.app.Service
 import android.app.TaskStackListener
 import android.content.*
@@ -23,10 +24,16 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
 import io.chaldeaprjkt.gamespace.data.SystemSettings
+import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 
 class TaskListenerService : Service() {
+    private val scope = CoroutineScope(Job() + Dispatchers.IO)
     private val taskManager by lazy { ActivityTaskManager.getService() }
     private val settings by lazy { SystemSettings(applicationContext) }
     private val listener by lazy {
@@ -54,6 +61,7 @@ class TaskListenerService : Service() {
     private var previousApp = UNKNOWN_APP
     private var sessionKey = UNKNOWN_APP
     private lateinit var gameBar: GameBarService
+    private lateinit var gameManager: GameManager
 
     override fun onCreate() {
         try {
@@ -69,7 +77,7 @@ class TaskListenerService : Service() {
         Intent(this, GameBarService::class.java).apply {
             bindService(this, gameBarConnection, Context.BIND_AUTO_CREATE)
         }
-
+        gameManager = getSystemService(Context.GAME_SERVICE) as GameManager
         super.onCreate()
     }
 
@@ -87,7 +95,8 @@ class TaskListenerService : Service() {
         super.onDestroy()
     }
 
-    private fun isGame(packageName: String) = settings.userGames.contains(packageName)
+    private fun isGame(packageName: String) =
+        settings.userGames.any { it.packageName == packageName }
 
     private fun checkTaskStack(info: ActivityTaskManager.RootTaskInfo?) {
         try {
@@ -95,6 +104,7 @@ class TaskListenerService : Service() {
             if (currentApp == previousApp) return
             if (isGame(currentApp)) {
                 sessionKey = currentApp
+                applyGameModeConfig(currentApp)
                 gameBar.onGameStart()
             } else if (sessionKey != UNKNOWN_APP) {
                 gameBar.onGameLeave()
@@ -104,6 +114,16 @@ class TaskListenerService : Service() {
             previousApp = currentApp
         } catch (e: Exception) {
             Log.d(TAG, e.toString())
+        }
+    }
+
+    private fun applyGameModeConfig(app: String) {
+        val preferred = settings.userGames.firstOrNull { it.packageName == app }
+            ?.mode ?: GameModeUtils.defaultPreferredMode
+        scope.launch {
+            gameManager.getAvailableGameModes(app)
+                .takeIf { it.contains(preferred) }
+                ?.run { gameManager.setGameMode(app, preferred) }
         }
     }
 

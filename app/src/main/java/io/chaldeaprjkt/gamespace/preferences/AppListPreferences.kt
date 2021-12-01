@@ -28,13 +28,15 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.SystemSettings
+import io.chaldeaprjkt.gamespace.data.UserGame
 import io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity
+import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 
 
 class AppListPreferences(context: Context?, attrs: AttributeSet?) :
     PreferenceCategory(context, attrs), Preference.OnPreferenceClickListener {
 
-    private val apps = mutableListOf<String>()
+    private val apps = mutableListOf<UserGame>()
     private var settings: SystemSettings? = null
 
     init {
@@ -69,9 +71,9 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
         removeAll()
         addPreference(makeAddPref)
         apps.map {
-            val appInfo = getAppInfo(it) ?: return
+            val appInfo = getAppInfo(it.packageName) ?: return
             Preference(context).apply {
-                key = it
+                key = it.packageName
                 title = appInfo.loadLabel(context.packageManager)
                 summary = appInfo.packageName
                 icon = appInfo.loadIcon(context.packageManager)
@@ -83,16 +85,18 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
     }
 
     private fun registerApp(packageName: String) {
-        if (!apps.contains(packageName)) {
-            apps.add(packageName)
+        if (!apps.any { it.packageName == packageName }) {
+            apps.add(UserGame(packageName))
         }
         settings?.let { it.userGames = apps }
+        GameModeUtils.setupIntervention(packageName)
         updateAppList()
     }
 
     private fun unregisterApp(preference: Preference) {
-        apps.remove(preference.key)
+        apps.removeIf { it.packageName == preference.key }
         settings?.let { it.userGames = apps }
+        GameModeUtils.clearIntervention(preference.key)
         updateAppList()
     }
 
