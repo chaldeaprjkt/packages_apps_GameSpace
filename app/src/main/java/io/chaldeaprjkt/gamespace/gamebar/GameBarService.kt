@@ -28,7 +28,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.core.view.isVisible
+import androidx.core.view.*
 import com.android.systemui.screenrecord.IRecordingCallback
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.AppSettings
@@ -75,26 +75,29 @@ class GameBarService : Service() {
     }
 
     private lateinit var rootView: View
-    private lateinit var containerExpanded: LinearLayout
-    private lateinit var containerCollapsed: LinearLayout
-    private lateinit var menuExpanded: ImageButton
-    private lateinit var menuCollapsed: ImageButton
+    private lateinit var container: LinearLayout
+    private lateinit var menuSwitcher: ImageButton
     private val binder = GameBarBinder()
     private val firstPaint = Runnable { initActions() }
-    private var expandGameBar: Boolean
-        get() = containerExpanded.isVisible
+    private var barExpanded: Boolean = false
         set(value) {
-            containerExpanded.isVisible = value
-            containerCollapsed.isVisible = !value
+            field = value
+            menuSwitcher.isSelected = value
+            container.children.forEach {
+                if (it.id != R.id.action_menu_switcher) {
+                    it.isVisible = value
+                }
+            }
+            updateBackground()
+            updateExpanderMenu()
+            updateContainerGaps()
         }
 
     override fun onCreate() {
         super.onCreate()
         rootView = themedInflater.inflate(R.layout.window_util, FrameLayout(this), false)
-        containerExpanded = rootView.findViewById(R.id.container_expanded)
-        containerCollapsed = rootView.findViewById(R.id.container_collapsed)
-        menuExpanded = rootView.findViewById(R.id.action_menu_expanded)
-        menuCollapsed = rootView.findViewById(R.id.action_menu_collapsed)
+        container = rootView.findViewById(R.id.container_bar)
+        menuSwitcher = rootView.findViewById(R.id.action_menu_switcher)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -190,59 +193,80 @@ class GameBarService : Service() {
             .alpha(1f)
             .apply { duration = 300 }
             .start()
-        expandGameBar = false
+        barExpanded = false
         windowParams.x = appSettings.x
         windowParams.y = appSettings.y
         dockCollapsedMenu()
 
-        menuButton()
+        menuSwitcherButton()
         screenshotButton()
         headsUpButton()
         recorderButton()
     }
 
-    private fun menuButton() {
-        menuExpanded.setOnClickListener {
-            expandGameBar = false
-        }
-        menuCollapsed.setOnClickListener {
-            expandGameBar = true
-        }
-        listOf(menuExpanded, menuCollapsed).onEach {
-            it.registerDraggableTouchListener(
-                initPoint = { Point(windowParams.x, windowParams.y) },
-                listener = { x, y ->
-                    onBarDragged(true)
-                    windowParams.x = x
-                    windowParams.y = y
-                    updateLayout()
-                },
-                onComplete = {
-                    onBarDragged(false)
-                    dockCollapsedMenu()
-                    appSettings.x = windowParams.x
-                    appSettings.y = windowParams.y
-                }
-            )
+    private fun onBarDragged(dragged: Boolean) {
+        container.isSelected = dragged
+        updateBackground()
+        if (dragged) {
+            menuSwitcher.setImageResource(R.drawable.ic_drag_handle)
+            container.translationX = 0f
+        } else {
+            menuSwitcher.setImageResource(R.drawable.ic_action_arrow)
         }
     }
 
-    private fun onBarDragged(dragged: Boolean) {
-        if (dragged) {
-            menuCollapsed.setImageResource(R.drawable.ic_drag_handle)
-            menuExpanded.setImageResource(R.drawable.ic_drag_handle)
-            containerCollapsed.translationX = 0f
-            containerCollapsed.isSelected = true
+    private fun updateBackground() {
+        container.setBackgroundResource(
+            when {
+                barExpanded -> R.drawable.bar_expanded
+                windowParams.x < 0 -> R.drawable.bar_collapsed_start
+                else -> R.drawable.bar_collapsed_end
+            }
+        )
+    }
+
+    private fun updateContainerGaps() {
+        if (barExpanded) {
+            container.updatePadding(16, 16, 16, 16)
+            (container.layoutParams as ViewGroup.MarginLayoutParams)
+                .updateMargins(right = 48, left = 48)
         } else {
-            menuCollapsed.setImageResource(R.drawable.ic_action_arrow)
-            menuExpanded.setImageResource(R.drawable.ic_action_arrow)
-            containerCollapsed.isSelected = false
+            container.updatePadding(0, 0, 0, 0)
+            (container.layoutParams as ViewGroup.MarginLayoutParams)
+                .updateMargins(right = 0, left = 0)
         }
+    }
+
+    private fun updateExpanderMenu() {
+        if ((barExpanded && windowParams.x > 0) || (!barExpanded && windowParams.x < 0)) {
+            menuSwitcher.rotation = 90f
+        } else {
+            menuSwitcher.rotation = -90f
+        }
+    }
+
+    private fun dockCollapsedMenu() {
+        val halfWidth = wm.maximumWindowMetrics.bounds.width() / 2
+        updateBackground()
+        updateExpanderMenu()
+        updateContainerGaps()
+        if (windowParams.x < 0) {
+            container.translationX = -22f
+            windowParams.x = -halfWidth
+        } else {
+            container.translationX = 22f
+            windowParams.x = halfWidth
+        }
+
+        val safeArea = getStatusBarHeight()?.plus(4.dp2px) ?: 32.dp2px
+        val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
+        windowParams.y = max(min(windowParams.y, safeHeight), safeArea)
+        updateLayout()
     }
 
     private fun takeShot() {
         val afterShot: () -> Unit = {
-            expandGameBar = false
+            barExpanded = false
             handler.postDelayed({
                 updateLayout { it.alpha = 1f }
             }, 100)
@@ -259,6 +283,27 @@ class GameBarService : Service() {
                 afterShot()
             }
         }, 250)
+    }
+
+    private fun menuSwitcherButton() {
+        menuSwitcher.setOnClickListener {
+            barExpanded = !barExpanded
+        }
+        menuSwitcher.registerDraggableTouchListener(
+            initPoint = { Point(windowParams.x, windowParams.y) },
+            listener = { x, y ->
+                onBarDragged(true)
+                windowParams.x = x
+                windowParams.y = y
+                updateLayout()
+            },
+            onComplete = {
+                onBarDragged(false)
+                dockCollapsedMenu()
+                appSettings.x = windowParams.x
+                appSettings.y = windowParams.y
+            }
+        )
     }
 
     private fun screenshotButton() {
@@ -295,7 +340,7 @@ class GameBarService : Service() {
                 recorder.stopRecording()
             }
 
-            expandGameBar = false
+            barExpanded = false
         }
     }
 
@@ -309,25 +354,6 @@ class GameBarService : Service() {
             Toast.makeText(it.context, "Heads up is $stateText", Toast.LENGTH_SHORT)
                 .show()
         }
-    }
-
-    private fun dockCollapsedMenu() {
-        val halfWidth = wm.maximumWindowMetrics.bounds.width() / 2
-        if (windowParams.x < 0) {
-            containerCollapsed.rotation = 180f
-            containerCollapsed.translationX = -22f
-            menuExpanded.rotation = -90f
-            windowParams.x = -halfWidth
-        } else {
-            containerCollapsed.rotation = 0f
-            containerCollapsed.translationX = 22f
-            menuExpanded.rotation = 90f
-            windowParams.x = halfWidth
-        }
-        val safeArea = getStatusBarHeight()?.plus(4.dp2px) ?: 32.dp2px
-        val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
-        windowParams.y = max(min(windowParams.y, safeHeight), safeArea)
-        updateLayout()
     }
 
     companion object {

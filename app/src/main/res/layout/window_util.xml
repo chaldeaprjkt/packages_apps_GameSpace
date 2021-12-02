@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) Chaldeaprjkt
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,32 +15,13 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="end">
+    android:layout_gravity="center">
 
     <LinearLayout
-        android:id="@+id/container_collapsed"
-        android:layout_width="@dimen/actions_size"
-        android:layout_height="@dimen/actions_size"
-        android:layout_gravity="end"
-        android:background="@drawable/bar_collapsed"
-        android:orientation="vertical">
-
-        <ImageButton
-            android:id="@+id/action_menu_collapsed"
-            android:layout_width="@dimen/actions_size"
-            android:layout_height="@dimen/actions_size"
-            android:layout_gravity="center"
-            android:background="@null"
-            android:rotation="-90"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_action_arrow" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/container_expanded"
+        android:id="@+id/container_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -49,10 +29,11 @@
         android:background="@drawable/bar_expanded"
         android:gravity="top"
         android:orientation="vertical"
-        android:padding="5dp">
+        android:padding="5dp"
+        tools:ignore="UselessParent">
 
         <ImageButton
-            android:id="@+id/action_menu_expanded"
+            android:id="@+id/action_menu_switcher"
             android:layout_width="@dimen/actions_size"
             android:layout_height="@dimen/actions_size"
             android:padding="8dp"
