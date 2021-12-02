@@ -2,6 +2,7 @@ android_app {
     name: "GameSpace",
     platform_apis: true,
     privileged: true,
+    manifest: "AndroidManifest.xml",
     certificate: "platform",
     resource_dirs: ["res"],
     defaults: [
