@@ -28,6 +28,7 @@ import android.view.WindowManager
 import com.android.internal.util.ScreenshotHelper
 import com.android.systemui.screenrecord.IRemoteRecording
 import java.util.function.Consumer
+import kotlin.system.exitProcess
 
 object ScreenUtils {
     @SuppressLint("StaticFieldLeak")  // We store the application context, not an activity.
@@ -37,8 +38,9 @@ object ScreenUtils {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             try {
                 remoteRecording = IRemoteRecording.Stub.asInterface(service)
-            } catch (e: RemoteException) {
+            } catch (e: Exception) {
                 e.printStackTrace()
+                exitProcess(1)
             }
         }
 
@@ -63,7 +65,7 @@ object ScreenUtils {
             recordingServiceIntent,
             serviceConnection,
             Context.BIND_AUTO_CREATE
-        )
+        ).let { if (!it) exitProcess(1) }
     }
 
     fun unbind(context: Context) {
