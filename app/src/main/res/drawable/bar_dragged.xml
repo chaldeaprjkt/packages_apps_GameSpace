@@ -13,10 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
   -->
-
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="@android:color/system_accent2_1000" />
-    <corners
-        android:bottomRightRadius="@dimen/actions_size"
-        android:topRightRadius="@dimen/actions_size" />
+    <corners android:radius="32dp" />
 </shape>

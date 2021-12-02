@@ -205,22 +205,25 @@ class GameBarService : Service() {
     }
 
     private fun onBarDragged(dragged: Boolean) {
-        container.isSelected = dragged
-        updateBackground()
         if (dragged) {
             menuSwitcher.setImageResource(R.drawable.ic_drag_handle)
             container.translationX = 0f
         } else {
             menuSwitcher.setImageResource(R.drawable.ic_action_arrow)
         }
+        updateBackground()
     }
 
     private fun updateBackground() {
+        val barDragged = !barExpanded && container.translationX == 0f
+        val collapsedAtStart = !barDragged && windowParams.x < 0
+        val collapsedAtEnd = !barDragged && windowParams.x > 0
         container.setBackgroundResource(
             when {
                 barExpanded -> R.drawable.bar_expanded
-                windowParams.x < 0 -> R.drawable.bar_collapsed_start
-                else -> R.drawable.bar_collapsed_end
+                collapsedAtStart -> R.drawable.bar_collapsed_start
+                collapsedAtEnd -> R.drawable.bar_collapsed_end
+                else -> R.drawable.bar_dragged
             }
         )
     }
@@ -247,9 +250,6 @@ class GameBarService : Service() {
 
     private fun dockCollapsedMenu() {
         val halfWidth = wm.maximumWindowMetrics.bounds.width() / 2
-        updateBackground()
-        updateExpanderMenu()
-        updateContainerGaps()
         if (windowParams.x < 0) {
             container.translationX = -22f
             windowParams.x = -halfWidth
@@ -261,6 +261,10 @@ class GameBarService : Service() {
         val safeArea = getStatusBarHeight()?.plus(4.dp2px) ?: 32.dp2px
         val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
         windowParams.y = max(min(windowParams.y, safeHeight), safeArea)
+
+        updateBackground()
+        updateExpanderMenu()
+        updateContainerGaps()
         updateLayout()
     }
 
