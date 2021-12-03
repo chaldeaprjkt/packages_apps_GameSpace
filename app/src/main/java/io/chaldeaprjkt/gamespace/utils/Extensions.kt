@@ -28,12 +28,13 @@ fun View.registerDraggableTouchListener(
     onComplete: () -> Unit
 ) = DraggableTouchListener(context, this, initPoint, listener, onComplete)
 
-fun Context.getStatusBarHeight() =
-    resources.getIdentifier("status_bar_height", "dimen", "android")
-        .takeIf { it > 0 }
-        ?.let { resources.getDimensionPixelSize(it) }
+val Context.statusbarHeight
+    get() =
+        resources.getIdentifier("status_bar_height", "dimen", "android")
+            .takeIf { it > 0 }
+            ?.let { resources.getDimensionPixelSize(it) } ?: 24.dp
 
-val Int.dp2px
+val Int.dp
     get() = (this * getSystem().displayMetrics.density).toInt()
 
 fun WindowManager.isPortrait() =

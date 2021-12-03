@@ -19,7 +19,8 @@ import android.app.Service
 import android.content.Context
 import android.view.WindowManager
 import androidx.preference.PreferenceManager
-import io.chaldeaprjkt.gamespace.utils.getStatusBarHeight
+import io.chaldeaprjkt.gamespace.utils.dp
+import io.chaldeaprjkt.gamespace.utils.statusbarHeight
 
 class AppSettings(private val context: Context) {
 
@@ -31,7 +32,7 @@ class AppSettings(private val context: Context) {
         set(point) = db.edit().putInt("offset_x", point).apply()
 
     var y
-        get() = db.getInt("offset_y", context.getStatusBarHeight()?.plus(20) ?: 60)
+        get() = db.getInt("offset_y", context.statusbarHeight + 8.dp)
         set(point) = db.edit().putInt("offset_y", point).apply()
 
 }

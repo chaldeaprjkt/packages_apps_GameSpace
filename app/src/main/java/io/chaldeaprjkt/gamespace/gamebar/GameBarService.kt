@@ -281,7 +281,7 @@ class GameBarService : Service() {
             barLayoutParam.x = halfWidth
         }
 
-        val safeArea = getStatusBarHeight()?.plus(4.dp2px) ?: 32.dp2px
+        val safeArea = statusbarHeight + 4.dp
         val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
         barLayoutParam.y = max(min(barLayoutParam.y, safeHeight), safeArea)
 
@@ -307,7 +307,7 @@ class GameBarService : Service() {
             rootPanelView.setPaddingRelative(16, 16, barWidth, 16)
         }
         if (wm.isPortrait()) {
-            val safeTop = (getStatusBarHeight() ?: 24.dp2px)
+            val safeTop = statusbarHeight
             val start = barView.locationOnScreen.last() - (barView.height / 2)
             val maxY = wm.maximumWindowMetrics.bounds.height() - panelView.layoutParams.height
             panelView.layoutParams.height = wm.maximumWindowMetrics.bounds.height() / 2
