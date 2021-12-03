@@ -229,7 +229,6 @@ class GameBarService : Service() {
         menuSwitcherButton()
         panelButton()
         screenshotButton()
-        headsUpButton()
         recorderButton()
     }
 
@@ -405,18 +404,6 @@ class GameBarService : Service() {
             }
 
             barExpanded = false
-        }
-    }
-
-    private fun headsUpButton() {
-        val actionsHeadsUp = rootBarView.findViewById<ImageButton>(R.id.action_heads_up)
-        actionsHeadsUp.isSelected = settings.systemHeadsUp
-        actionsHeadsUp.setOnClickListener {
-            actionsHeadsUp.isSelected = !actionsHeadsUp.isSelected
-            settings.systemHeadsUp = actionsHeadsUp.isSelected
-            val stateText = if (actionsHeadsUp.isSelected) "enabled" else "disabled"
-            Toast.makeText(it.context, "Heads up is $stateText", Toast.LENGTH_SHORT)
-                .show()
         }
     }
 

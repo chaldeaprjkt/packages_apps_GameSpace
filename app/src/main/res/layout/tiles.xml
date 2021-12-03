@@ -19,4 +19,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <io.chaldeaprjkt.gamespace.widget.tiles.HeadsupTile
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>
