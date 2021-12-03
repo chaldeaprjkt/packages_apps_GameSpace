@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.res.Resources.getSystem
 import android.graphics.Point
 import android.view.View
+import android.view.WindowManager
 import io.chaldeaprjkt.gamespace.gamebar.DraggableTouchListener
 
 fun View.registerDraggableTouchListener(
@@ -34,3 +35,6 @@ fun Context.getStatusBarHeight() =
 
 val Int.dp2px
     get() = (this * getSystem().displayMetrics.density).toInt()
+
+fun WindowManager.isPortrait() =
+    maximumWindowMetrics.bounds.width() < maximumWindowMetrics.bounds.height()

@@ -24,20 +24,15 @@ import android.os.Binder
 import android.os.Handler
 import android.os.Looper
 import android.view.*
-import android.widget.FrameLayout
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.Toast
+import android.widget.*
 import androidx.core.view.*
 import com.android.systemui.screenrecord.IRecordingCallback
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.AppSettings
 import io.chaldeaprjkt.gamespace.data.SessionState
 import io.chaldeaprjkt.gamespace.data.SystemSettings
-import io.chaldeaprjkt.gamespace.utils.ScreenUtils
-import io.chaldeaprjkt.gamespace.utils.dp2px
-import io.chaldeaprjkt.gamespace.utils.getStatusBarHeight
-import io.chaldeaprjkt.gamespace.utils.registerDraggableTouchListener
+import io.chaldeaprjkt.gamespace.utils.*
+import io.chaldeaprjkt.gamespace.widget.PanelView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -57,7 +52,8 @@ class GameBarService : Service() {
         LayoutInflater.from(this)
             .cloneInContext(ContextThemeWrapper(this, R.style.GameSpaceTheme))
     }
-    private val windowParams by lazy {
+
+    private val barLayoutParam =
         WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -72,18 +68,36 @@ class GameBarService : Service() {
             preferMinimalPostProcessing = true
             gravity = Gravity.TOP
         }
-    }
 
-    private lateinit var rootView: View
-    private lateinit var container: LinearLayout
+    private val panelLayoutParam =
+        WindowManager.LayoutParams(
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                    or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                    or WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            dimAmount = 0.7f
+            width = WindowManager.LayoutParams.MATCH_PARENT
+            height = WindowManager.LayoutParams.MATCH_PARENT
+            layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+            gravity = Gravity.CENTER_VERTICAL
+
+        }
+
+    private lateinit var rootBarView: View
+    private lateinit var barView: LinearLayout
     private lateinit var menuSwitcher: ImageButton
+    private lateinit var rootPanelView: LinearLayout
+    private lateinit var panelView: PanelView
     private val binder = GameBarBinder()
     private val firstPaint = Runnable { initActions() }
     private var barExpanded: Boolean = false
         set(value) {
             field = value
             menuSwitcher.isSelected = value
-            container.children.forEach {
+            barView.children.forEach {
                 if (it.id != R.id.action_menu_switcher) {
                     it.isVisible = value
                 }
@@ -93,11 +107,25 @@ class GameBarService : Service() {
             updateContainerGaps()
         }
 
+    private var showPanel: Boolean = false
+        set(value) {
+            field = value
+            if (value && !rootPanelView.isAttachedToWindow) {
+                setupPanelView()
+                wm.addView(rootPanelView, panelLayoutParam)
+            } else if (!value && rootPanelView.isAttachedToWindow) {
+                wm.removeView(rootPanelView)
+            }
+        }
+
     override fun onCreate() {
         super.onCreate()
-        rootView = themedInflater.inflate(R.layout.window_util, FrameLayout(this), false)
-        container = rootView.findViewById(R.id.container_bar)
-        menuSwitcher = rootView.findViewById(R.id.action_menu_switcher)
+        val frame = FrameLayout(this)
+        rootBarView = themedInflater.inflate(R.layout.window_util, frame, false)
+        barView = rootBarView.findViewById(R.id.container_bar)
+        menuSwitcher = rootBarView.findViewById(R.id.action_menu_switcher)
+        rootPanelView = themedInflater.inflate(R.layout.window_panel, frame, false) as LinearLayout
+        panelView = rootPanelView.findViewById(R.id.panel_view)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -122,7 +150,7 @@ class GameBarService : Service() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        if (!rootView.isVisible) {
+        if (!rootBarView.isVisible) {
             handler.removeCallbacks(firstPaint)
             handler.postDelayed({
                 firstPaint.run()
@@ -139,18 +167,18 @@ class GameBarService : Service() {
 
     private fun onActionStart() {
         applyCustomSettings()
-        rootView.isVisible = false
-        rootView.alpha = 0f
-        if (!rootView.isAttachedToWindow) {
-            wm.addView(rootView, windowParams)
+        rootBarView.isVisible = false
+        rootBarView.alpha = 0f
+        if (!rootBarView.isAttachedToWindow) {
+            wm.addView(rootBarView, barLayoutParam)
         }
         handler.postDelayed(firstPaint, 500)
     }
 
     private fun onActionStop() {
         restoreCustomSettings()
-        if (rootView.isAttachedToWindow) {
-            wm.removeViewImmediate(rootView)
+        if (rootBarView.isAttachedToWindow) {
+            wm.removeViewImmediate(rootBarView)
         }
     }
 
@@ -182,23 +210,24 @@ class GameBarService : Service() {
     }
 
     private fun updateLayout(with: (WindowManager.LayoutParams) -> Unit = {}) {
-        if (rootView.isAttachedToWindow) {
-            wm.updateViewLayout(rootView, windowParams.apply(with))
+        if (rootBarView.isAttachedToWindow) {
+            wm.updateViewLayout(rootBarView, barLayoutParam.apply(with))
         }
     }
 
     private fun initActions() {
-        rootView.isVisible = true
-        rootView.animate()
+        rootBarView.isVisible = true
+        rootBarView.animate()
             .alpha(1f)
             .apply { duration = 300 }
             .start()
         barExpanded = false
-        windowParams.x = appSettings.x
-        windowParams.y = appSettings.y
+        barLayoutParam.x = appSettings.x
+        barLayoutParam.y = appSettings.y
         dockCollapsedMenu()
 
         menuSwitcherButton()
+        panelButton()
         screenshotButton()
         headsUpButton()
         recorderButton()
@@ -207,7 +236,7 @@ class GameBarService : Service() {
     private fun onBarDragged(dragged: Boolean) {
         if (dragged) {
             menuSwitcher.setImageResource(R.drawable.ic_drag_handle)
-            container.translationX = 0f
+            barView.translationX = 0f
         } else {
             menuSwitcher.setImageResource(R.drawable.ic_action_arrow)
         }
@@ -215,10 +244,10 @@ class GameBarService : Service() {
     }
 
     private fun updateBackground() {
-        val barDragged = !barExpanded && container.translationX == 0f
-        val collapsedAtStart = !barDragged && windowParams.x < 0
-        val collapsedAtEnd = !barDragged && windowParams.x > 0
-        container.setBackgroundResource(
+        val barDragged = !barExpanded && barView.translationX == 0f
+        val collapsedAtStart = !barDragged && barLayoutParam.x < 0
+        val collapsedAtEnd = !barDragged && barLayoutParam.x > 0
+        barView.setBackgroundResource(
             when {
                 barExpanded -> R.drawable.bar_expanded
                 collapsedAtStart -> R.drawable.bar_collapsed_start
@@ -230,18 +259,18 @@ class GameBarService : Service() {
 
     private fun updateContainerGaps() {
         if (barExpanded) {
-            container.updatePadding(16, 16, 16, 16)
-            (container.layoutParams as ViewGroup.MarginLayoutParams)
+            barView.updatePadding(16, 16, 16, 16)
+            (barView.layoutParams as ViewGroup.MarginLayoutParams)
                 .updateMargins(right = 48, left = 48)
         } else {
-            container.updatePadding(0, 0, 0, 0)
-            (container.layoutParams as ViewGroup.MarginLayoutParams)
+            barView.updatePadding(0, 0, 0, 0)
+            (barView.layoutParams as ViewGroup.MarginLayoutParams)
                 .updateMargins(right = 0, left = 0)
         }
     }
 
     private fun updateExpanderMenu() {
-        if ((barExpanded && windowParams.x > 0) || (!barExpanded && windowParams.x < 0)) {
+        if ((barExpanded && barLayoutParam.x > 0) || (!barExpanded && barLayoutParam.x < 0)) {
             menuSwitcher.rotation = 90f
         } else {
             menuSwitcher.rotation = -90f
@@ -250,22 +279,43 @@ class GameBarService : Service() {
 
     private fun dockCollapsedMenu() {
         val halfWidth = wm.maximumWindowMetrics.bounds.width() / 2
-        if (windowParams.x < 0) {
-            container.translationX = -22f
-            windowParams.x = -halfWidth
+        if (barLayoutParam.x < 0) {
+            barView.translationX = -22f
+            barLayoutParam.x = -halfWidth
         } else {
-            container.translationX = 22f
-            windowParams.x = halfWidth
+            barView.translationX = 22f
+            barLayoutParam.x = halfWidth
         }
 
         val safeArea = getStatusBarHeight()?.plus(4.dp2px) ?: 32.dp2px
         val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
-        windowParams.y = max(min(windowParams.y, safeHeight), safeArea)
+        barLayoutParam.y = max(min(barLayoutParam.y, safeHeight), safeArea)
 
         updateBackground()
         updateExpanderMenu()
         updateContainerGaps()
         updateLayout()
+    }
+
+    private fun setupPanelView() {
+        val barWidth = barView.width + barView.marginStart
+        if (barLayoutParam.x < 0) {
+            rootPanelView.gravity = Gravity.START
+            rootPanelView.setPaddingRelative(barWidth, 16, 16, 16)
+        } else {
+            rootPanelView.gravity = Gravity.END
+            rootPanelView.setPaddingRelative(16, 16, barWidth, 16)
+        }
+        if (wm.isPortrait()) {
+            val safeTop = (getStatusBarHeight() ?: 24.dp2px)
+            val start = barView.locationOnScreen.last() - (barView.height / 2)
+            val maxY = wm.maximumWindowMetrics.bounds.height() - panelView.layoutParams.height
+            panelView.layoutParams.height = wm.maximumWindowMetrics.bounds.height() / 2
+            panelView.y = min(max(start, safeTop), maxY - safeTop).toFloat()
+        } else {
+            panelView.layoutParams.height = LinearLayout.LayoutParams.MATCH_PARENT
+            panelView.y = 0f
+        }
     }
 
     private fun takeShot() {
@@ -294,31 +344,41 @@ class GameBarService : Service() {
             barExpanded = !barExpanded
         }
         menuSwitcher.registerDraggableTouchListener(
-            initPoint = { Point(windowParams.x, windowParams.y) },
+            initPoint = { Point(barLayoutParam.x, barLayoutParam.y) },
             listener = { x, y ->
                 onBarDragged(true)
-                windowParams.x = x
-                windowParams.y = y
+                barLayoutParam.x = x
+                barLayoutParam.y = y
                 updateLayout()
             },
             onComplete = {
                 onBarDragged(false)
                 dockCollapsedMenu()
-                appSettings.x = windowParams.x
-                appSettings.y = windowParams.y
+                appSettings.x = barLayoutParam.x
+                appSettings.y = barLayoutParam.y
             }
         )
     }
 
+    private fun panelButton() {
+        val actionPanel = rootBarView.findViewById<ImageButton>(R.id.action_panel)
+        actionPanel.setOnClickListener {
+            showPanel = !showPanel
+        }
+        rootPanelView.setOnClickListener {
+            showPanel = false
+        }
+    }
+
     private fun screenshotButton() {
-        val actionScreenshot = rootView.findViewById<ImageButton>(R.id.action_screenshot)
+        val actionScreenshot = rootBarView.findViewById<ImageButton>(R.id.action_screenshot)
         actionScreenshot.setOnClickListener {
             takeShot()
         }
     }
 
     private fun recorderButton() {
-        val actionRecorder = rootView.findViewById<ImageButton>(R.id.action_record)
+        val actionRecorder = rootBarView.findViewById<ImageButton>(R.id.action_record)
         val recorder = ScreenUtils.recorder ?: let { actionRecorder.isVisible = false; return }
         recorder.addRecordingCallback(object : IRecordingCallback.Stub() {
             override fun onRecordingStart() {
@@ -349,7 +409,7 @@ class GameBarService : Service() {
     }
 
     private fun headsUpButton() {
-        val actionsHeadsUp = rootView.findViewById<ImageButton>(R.id.action_heads_up)
+        val actionsHeadsUp = rootBarView.findViewById<ImageButton>(R.id.action_heads_up)
         actionsHeadsUp.isSelected = settings.systemHeadsUp
         actionsHeadsUp.setOnClickListener {
             actionsHeadsUp.isSelected = !actionsHeadsUp.isSelected
