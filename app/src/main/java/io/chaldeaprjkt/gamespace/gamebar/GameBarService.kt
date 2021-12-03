@@ -172,6 +172,9 @@ class GameBarService : Service() {
 
     private fun onActionStop() {
         restoreCustomSettings()
+        if (::rootPanelView.isInitialized && rootPanelView.isAttachedToWindow) {
+            wm.removeViewImmediate(rootPanelView)
+        }
         if (rootBarView.isAttachedToWindow) {
             wm.removeViewImmediate(rootBarView)
         }
