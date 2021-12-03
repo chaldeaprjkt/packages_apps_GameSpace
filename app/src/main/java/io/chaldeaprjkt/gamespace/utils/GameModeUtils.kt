@@ -16,8 +16,11 @@
 package io.chaldeaprjkt.gamespace.utils
 
 import android.app.GameManager
+import android.content.Context
 import android.provider.DeviceConfig
 import io.chaldeaprjkt.gamespace.data.GameConfig
+import io.chaldeaprjkt.gamespace.data.SystemSettings
+import io.chaldeaprjkt.gamespace.data.UserGame
 import io.chaldeaprjkt.gamespace.data.asConfig
 
 object GameModeUtils {
@@ -27,6 +30,16 @@ object GameModeUtils {
         GameConfig(GameManager.GAME_MODE_PERFORMANCE, downscaleFactor = .7f),
         GameConfig(GameManager.GAME_MODE_BATTERY, downscaleFactor = .8f)
     )
+    private var manager: GameManager? = null
+    var activeGame: UserGame? = null
+
+    fun bind(manager: GameManager) {
+        this.manager = manager
+    }
+
+    fun unbind() {
+        manager = null
+    }
 
     fun setupIntervention(packageName: String, modeData: List<GameConfig> = defaultModes) {
         DeviceConfig.setProperty(
@@ -42,6 +55,23 @@ object GameModeUtils {
             Runtime.getRuntime().exec(cmd)
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    fun setActiveGameMode(context: Context, mode: Int) {
+        val packageName = activeGame?.packageName ?: return
+        manager?.setGameMode(packageName, mode)
+        UserGame(packageName, mode).let {
+            updatePreferredSettings(context, it)
+            activeGame = it
+        }
+    }
+
+    private fun updatePreferredSettings(context: Context, game: UserGame) {
+        SystemSettings(context).let { sys ->
+            sys.userGames = sys.userGames.filter { it.packageName != game.packageName }
+                .toMutableList()
+                .apply { add(game) }
         }
     }
 }

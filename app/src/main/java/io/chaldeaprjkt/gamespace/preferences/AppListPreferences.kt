@@ -75,7 +75,7 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
             Preference(context).apply {
                 key = it.packageName
                 title = appInfo.loadLabel(context.packageManager)
-                summary = appInfo.packageName
+                summary = "Mode: ${it.modeName()}"
                 icon = appInfo.loadIcon(context.packageManager)
                 isPersistent = false
                 onPreferenceClickListener = this@AppListPreferences

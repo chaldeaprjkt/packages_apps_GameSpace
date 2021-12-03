@@ -78,6 +78,7 @@ class TaskListenerService : Service() {
             bindService(this, gameBarConnection, Context.BIND_AUTO_CREATE)
         }
         gameManager = getSystemService(Context.GAME_SERVICE) as GameManager
+        GameModeUtils.bind(gameManager)
         super.onCreate()
     }
 
@@ -89,6 +90,7 @@ class TaskListenerService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        GameModeUtils.unbind()
         unbindService(gameBarConnection)
         ScreenUtils.unbind(this)
         unregisterReceiver(screenReceiver)
@@ -120,6 +122,7 @@ class TaskListenerService : Service() {
     private fun applyGameModeConfig(app: String) {
         val preferred = settings.userGames.firstOrNull { it.packageName == app }
             ?.mode ?: GameModeUtils.defaultPreferredMode
+        GameModeUtils.activeGame = settings.userGames.firstOrNull { it.packageName == app }
         scope.launch {
             gameManager.getAvailableGameModes(app)
                 .takeIf { it.contains(preferred) }
