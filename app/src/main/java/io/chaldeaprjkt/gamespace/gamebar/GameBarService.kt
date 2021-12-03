@@ -306,16 +306,7 @@ class GameBarService : Service() {
             rootPanelView.gravity = Gravity.END
             rootPanelView.setPaddingRelative(16, 16, barWidth, 16)
         }
-        if (wm.isPortrait()) {
-            val safeTop = statusbarHeight
-            val start = barView.locationOnScreen.last() - (barView.height / 2)
-            val maxY = wm.maximumWindowMetrics.bounds.height() - panelView.layoutParams.height
-            panelView.layoutParams.height = wm.maximumWindowMetrics.bounds.height() / 2
-            panelView.y = min(max(start, safeTop), maxY - safeTop).toFloat()
-        } else {
-            panelView.layoutParams.height = LinearLayout.LayoutParams.MATCH_PARENT
-            panelView.y = 0f
-        }
+        panelView.relativeY = barView.locationOnScreen.last() - barView.height
     }
 
     private fun takeShot() {
