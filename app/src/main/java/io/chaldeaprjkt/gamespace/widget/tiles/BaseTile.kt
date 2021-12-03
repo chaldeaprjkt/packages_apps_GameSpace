@@ -45,7 +45,6 @@ abstract class BaseTile : LinearLayout, View.OnClickListener {
 
     private fun prepareLayout() {
         LayoutInflater.from(context)
-            .cloneInContext(ContextThemeWrapper(context, R.style.GameSpaceTheme_Panel_Tile))
             .inflate(R.layout.panel_tile, this, true)
         setOnClickListener(this)
     }

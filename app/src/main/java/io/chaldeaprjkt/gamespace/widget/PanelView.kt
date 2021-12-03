@@ -34,16 +34,12 @@ class PanelView : LinearLayout {
     constructor(ctx: Context, attrs: AttributeSet?) : super(ctx, attrs)
     constructor(ctx: Context, attrs: AttributeSet?, dsAttr: Int) : super(ctx, attrs, dsAttr)
 
-    private val themedInflater by lazy {
-        LayoutInflater.from(context)
-            .cloneInContext(ContextThemeWrapper(context, R.style.GameSpaceTheme))
-    }
     private val tileContainer: RecyclerView
     private lateinit var adapter: TileAdapter
 
 
     init {
-        themedInflater.inflate(R.layout.panel_view, this, true)
+        LayoutInflater.from(context).inflate(R.layout.panel_view, this, true)
         isClickable = true
         isFocusable = true
         tileContainer = findViewById(R.id.panel_rv_tiles)
@@ -52,7 +48,7 @@ class PanelView : LinearLayout {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         val rootInflater = FrameLayout(context)
-        val tiles = themedInflater.inflate(R.layout.tiles, rootInflater, false)
+        val tiles = LayoutInflater.from(context).inflate(R.layout.tiles, rootInflater, false)
         (tiles as ViewGroup).children.let {
             adapter = TileAdapter(it.map { t -> t as BaseTile }.toList())
             tileContainer.adapter = adapter

@@ -48,10 +48,6 @@ class GameBarService : Service() {
     private val appSettings by lazy { AppSettings(applicationContext) }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
     private val session by lazy { SessionState() }
-    private val themedInflater by lazy {
-        LayoutInflater.from(this)
-            .cloneInContext(ContextThemeWrapper(this, R.style.GameSpaceTheme))
-    }
 
     private val barLayoutParam =
         WindowManager.LayoutParams(
@@ -110,10 +106,10 @@ class GameBarService : Service() {
     private var showPanel: Boolean = false
         set(value) {
             field = value
-            if (value && !rootPanelView.isAttachedToWindow) {
+            if (value && !::rootPanelView.isInitialized || !rootPanelView.isAttachedToWindow) {
                 setupPanelView()
                 wm.addView(rootPanelView, panelLayoutParam)
-            } else if (!value && rootPanelView.isAttachedToWindow) {
+            } else if (!value && ::rootPanelView.isInitialized && rootPanelView.isAttachedToWindow) {
                 wm.removeView(rootPanelView)
             }
         }
@@ -121,11 +117,10 @@ class GameBarService : Service() {
     override fun onCreate() {
         super.onCreate()
         val frame = FrameLayout(this)
-        rootBarView = themedInflater.inflate(R.layout.window_util, frame, false)
+        rootBarView = LayoutInflater.from(this)
+            .inflate(R.layout.window_util, frame, false)
         barView = rootBarView.findViewById(R.id.container_bar)
         menuSwitcher = rootBarView.findViewById(R.id.action_menu_switcher)
-        rootPanelView = themedInflater.inflate(R.layout.window_panel, frame, false) as LinearLayout
-        panelView = rootPanelView.findViewById(R.id.panel_view)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -297,6 +292,12 @@ class GameBarService : Service() {
     }
 
     private fun setupPanelView() {
+        rootPanelView = LayoutInflater.from(this)
+            .inflate(R.layout.window_panel, FrameLayout(this), false) as LinearLayout
+        panelView = rootPanelView.findViewById(R.id.panel_view)
+        rootPanelView.setOnClickListener {
+            showPanel = false
+        }
         val barWidth = barView.width + barView.marginStart
         if (barLayoutParam.x < 0) {
             rootPanelView.gravity = Gravity.START
@@ -363,9 +364,6 @@ class GameBarService : Service() {
         val actionPanel = rootBarView.findViewById<ImageButton>(R.id.action_panel)
         actionPanel.setOnClickListener {
             showPanel = !showPanel
-        }
-        rootPanelView.setOnClickListener {
-            showPanel = false
         }
     }
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="error">#ef4040</color>
+    <color name="accentActive">@android:color/system_accent1_200</color>
+    <color name="accentInactive">@android:color/system_accent2_100</color>
+    <color name="background">@android:color/system_neutral1_50</color>
+    <color name="primary">@android:color/system_neutral1_50</color>
+    <color name="surface">@android:color/system_neutral2_100</color>
+    <color name="onBackground">@android:color/system_neutral1_900</color>
+    <color name="onPrimary">@android:color/system_neutral1_900</color>
+    <color name="onSurface">@android:color/system_neutral1_900</color>
+
+    <color name="barBackground">@android:color/system_accent2_900</color>
+    <color name="barButtonAccent">@android:color/system_accent1_700</color>
+    <color name="barButtonBackground">@android:color/black</color>
+    <color name="barButtonRipple">@android:color/system_accent1_400</color>
+    <color name="onBarBackground">@android:color/system_neutral2_100</color>
+</resources>

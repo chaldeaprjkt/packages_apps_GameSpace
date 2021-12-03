@@ -16,7 +16,9 @@
 
 <resources>
 
-    <style name="GameSpaceTheme" parent="Theme.SubSettingsBase">
+    <style name="GameSpaceTheme" parent="Theme.SubSettingsBase" />
+
+    <style name="GameSpaceTheme.GameBar" parent="Theme.SubSettingsBase">
         <item name="android:buttonStyle">@style/GameSpaceTheme.FlatButton</item>
         <item name="android:imageButtonStyle">@style/GameSpaceTheme.FlatButton</item>
     </style>
@@ -24,13 +26,16 @@
     <style name="GameSpaceTheme.FlatButton" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/ripple_circle</item>
-        <item name="android:tint">@android:color/system_neutral1_0</item>
+        <item name="android:tint">@color/onBarBackground</item>
     </style>
 
-    <style name="GameSpaceTheme.Panel" parent="GameSpaceTheme" />
+    <style name="GameSpaceTheme.Panel" parent="GameSpaceTheme">
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="android:textColor">@color/onSurface</item>
+    </style>
 
     <style name="GameSpaceTheme.Panel.Tile">
-        <item name="android:textColor">@android:color/system_neutral1_100</item>
+        <item name="android:textColor">@color/onSurface</item>
     </style>
 
 </resources>

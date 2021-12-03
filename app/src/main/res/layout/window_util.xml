@@ -30,7 +30,7 @@
         android:gravity="top"
         android:orientation="vertical"
         android:padding="5dp"
-        tools:ignore="UselessParent">
+        android:theme="@style/GameSpaceTheme.GameBar">
 
         <ImageButton
             android:id="@+id/action_menu_switcher"
