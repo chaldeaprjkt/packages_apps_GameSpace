@@ -92,6 +92,33 @@ class SystemSettings(private val context: Context) {
 
     private fun Boolean.toInt() = if (this) 1 else 0
 
+    fun applyUserSettings(session: SessionState) {
+        session.headsUp = systemHeadsUp
+        session.autoBrightness = autoBrightness
+        session.threeScreenshot = threeScreenshot
+        if (userNoHeadsUp) {
+            systemHeadsUp = false
+        }
+        if (userNoAutoBrightness) {
+            autoBrightness = false
+        }
+        if (userNoThreeScreenshot) {
+            threeScreenshot = false
+        }
+    }
+
+    fun restoreUserSettings(session: SessionState) {
+        if (userNoHeadsUp) {
+            session.headsUp?.let { systemHeadsUp = it }
+        }
+        if (userNoAutoBrightness) {
+            session.autoBrightness?.let { autoBrightness = it }
+        }
+        if (userNoThreeScreenshot) {
+            session.threeScreenshot?.let { threeScreenshot = it }
+        }
+    }
+
     companion object {
         const val KEY_GAME_LIST = "gamespace_game_list"
         const val KEY_HEADS_UP_DISABLE = "gamespace_heads_up_disabled"

@@ -161,7 +161,7 @@ class GameBarService : Service() {
     fun onGameLeave() = scope.launch { onActionStop() }
 
     private fun onActionStart() {
-        applyCustomSettings()
+        settings.applyUserSettings(session)
         rootBarView.isVisible = false
         rootBarView.alpha = 0f
         if (!rootBarView.isAttachedToWindow) {
@@ -171,39 +171,12 @@ class GameBarService : Service() {
     }
 
     private fun onActionStop() {
-        restoreCustomSettings()
+        settings.restoreUserSettings(session)
         if (::rootPanelView.isInitialized && rootPanelView.isAttachedToWindow) {
             wm.removeViewImmediate(rootPanelView)
         }
         if (rootBarView.isAttachedToWindow) {
             wm.removeViewImmediate(rootBarView)
-        }
-    }
-
-    private fun applyCustomSettings() {
-        session.headsUp = settings.systemHeadsUp
-        session.autoBrightness = settings.autoBrightness
-        session.threeScreenshot = settings.threeScreenshot
-        if (settings.userNoHeadsUp) {
-            settings.systemHeadsUp = false
-        }
-        if (settings.userNoAutoBrightness) {
-            settings.autoBrightness = false
-        }
-        if (settings.userNoThreeScreenshot) {
-            settings.threeScreenshot = false
-        }
-    }
-
-    private fun restoreCustomSettings() {
-        if (settings.userNoHeadsUp) {
-            session.headsUp?.let { settings.systemHeadsUp = it }
-        }
-        if (settings.userNoAutoBrightness) {
-            session.autoBrightness?.let { settings.autoBrightness = it }
-        }
-        if (settings.userNoThreeScreenshot) {
-            session.threeScreenshot?.let { settings.threeScreenshot = it }
         }
     }
 
