@@ -53,6 +53,7 @@ class TaskListenerService : Service() {
     private val gameBarConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             gameBar = (service as GameBarService.GameBarBinder).getService()
+            checkTaskStack(taskManager.focusedRootTaskInfo)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {}
@@ -74,12 +75,12 @@ class TaskListenerService : Service() {
             addAction(Intent.ACTION_SCREEN_OFF)
             addAction(Intent.ACTION_SCREEN_ON)
         })
-        Intent(this, GameBarService::class.java).apply {
-            bindService(this, gameBarConnection, Context.BIND_AUTO_CREATE)
-        }
         gameManager = getSystemService(Context.GAME_SERVICE) as GameManager
         GameModeUtils.bind(gameManager)
         super.onCreate()
+        Intent(this, GameBarService::class.java).apply {
+            bindService(this, gameBarConnection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
