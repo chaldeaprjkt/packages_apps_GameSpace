@@ -14,7 +14,7 @@ object FrameRateUtils {
 
     private fun listenerFactory(ev: (Float) -> Unit) = object : SurfaceControlFpsListener() {
         override fun onFpsReported(fps: Float) {
-            ev.invoke(fps)
+            if (isBound) ev.invoke(fps)
         }
     }
 

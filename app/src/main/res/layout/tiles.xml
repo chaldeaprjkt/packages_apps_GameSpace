@@ -27,4 +27,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <io.chaldeaprjkt.gamespace.widget.tiles.FPSInfoTile
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

@@ -24,21 +24,18 @@
         android:id="@+id/container_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
+        android:layout_gravity="center_horizontal"
         android:layout_margin="10dp"
         android:background="@drawable/bar_expanded"
-        android:gravity="top"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="5dp"
+        android:paddingVertical="5dp"
         android:theme="@style/GameSpaceTheme.GameBar">
 
-        <ImageButton
+        <io.chaldeaprjkt.gamespace.widget.MenuSwitcher
             android:id="@+id/action_menu_switcher"
             android:layout_width="@dimen/actions_size"
-            android:layout_height="@dimen/actions_size"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_action_arrow" />
+            android:layout_height="@dimen/actions_size" />
 
         <ImageButton
             android:id="@+id/action_panel"

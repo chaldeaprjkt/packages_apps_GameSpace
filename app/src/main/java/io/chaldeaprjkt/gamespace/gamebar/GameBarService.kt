@@ -15,6 +15,7 @@
  */
 package io.chaldeaprjkt.gamespace.gamebar
 
+import android.app.ActivityTaskManager
 import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
@@ -24,7 +25,9 @@ import android.os.Binder
 import android.os.Handler
 import android.os.Looper
 import android.view.*
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.core.view.*
 import com.android.systemui.screenrecord.IRecordingCallback
 import io.chaldeaprjkt.gamespace.R
@@ -33,13 +36,12 @@ import io.chaldeaprjkt.gamespace.data.SessionState
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.*
 import io.chaldeaprjkt.gamespace.widget.PanelView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import io.chaldeaprjkt.gamespace.widget.MenuSwitcher
+import kotlinx.coroutines.*
+import java.lang.Runnable
 import kotlin.math.max
 import kotlin.math.min
-
+import kotlin.math.roundToInt
 
 class GameBarService : Service() {
     private val scope = CoroutineScope(Job() + Dispatchers.Main)
@@ -48,6 +50,7 @@ class GameBarService : Service() {
     private val appSettings by lazy { AppSettings(applicationContext) }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
     private val session by lazy { SessionState() }
+    private val taskManager by lazy { ActivityTaskManager.getService() }
 
     private val barLayoutParam =
         WindowManager.LayoutParams(
@@ -84,7 +87,7 @@ class GameBarService : Service() {
 
     private lateinit var rootBarView: View
     private lateinit var barView: LinearLayout
-    private lateinit var menuSwitcher: ImageButton
+    private lateinit var menuSwitcher: MenuSwitcher
     private lateinit var rootPanelView: LinearLayout
     private lateinit var panelView: PanelView
     private val binder = GameBarBinder()
@@ -92,14 +95,19 @@ class GameBarService : Service() {
     private var barExpanded: Boolean = false
         set(value) {
             field = value
-            menuSwitcher.isSelected = value
+            if (value) {
+                menuSwitcher.showFps = false
+
+            } else {
+                menuSwitcher.showFps = appSettings.showFps
+            }
             barView.children.forEach {
                 if (it.id != R.id.action_menu_switcher) {
                     it.isVisible = value
                 }
             }
             updateBackground()
-            updateExpanderMenu()
+            updateMenuSwitcherIcon()
             updateContainerGaps()
         }
 
@@ -113,6 +121,18 @@ class GameBarService : Service() {
                 wm.removeView(rootPanelView)
             }
         }
+
+    private fun onFpsUpdate(data: Float) {
+        if (!::menuSwitcher.isInitialized) return
+        if (!appSettings.showFps && menuSwitcher.showFps) {
+            menuSwitcher.showFps = false
+            return
+        }
+
+        val fps = data.roundToInt().toString()
+        if (menuSwitcher.text != fps)
+            menuSwitcher.text = fps
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -171,6 +191,7 @@ class GameBarService : Service() {
     }
 
     private fun onActionStop() {
+        FrameRateUtils.unbind()
         settings.restoreUserSettings(session)
         if (::rootPanelView.isInitialized && rootPanelView.isAttachedToWindow) {
             wm.removeViewImmediate(rootPanelView)
@@ -201,14 +222,17 @@ class GameBarService : Service() {
         panelButton()
         screenshotButton()
         recorderButton()
+
+        val task = taskManager.focusedRootTaskInfo ?: return
+        FrameRateUtils.bind(task) {
+            scope.launch(Dispatchers.Main) { onFpsUpdate(it) }
+        }
     }
 
     private fun onBarDragged(dragged: Boolean) {
+        menuSwitcher.isDragged = dragged
         if (dragged) {
-            menuSwitcher.setImageResource(R.drawable.ic_drag_handle)
             barView.translationX = 0f
-        } else {
-            menuSwitcher.setImageResource(R.drawable.ic_action_arrow)
         }
         updateBackground()
     }
@@ -239,11 +263,12 @@ class GameBarService : Service() {
         }
     }
 
-    private fun updateExpanderMenu() {
+    private fun updateMenuSwitcherIcon() {
+        menuSwitcher.icon = R.drawable.ic_action_arrow
         if ((barExpanded && barLayoutParam.x > 0) || (!barExpanded && barLayoutParam.x < 0)) {
-            menuSwitcher.rotation = 90f
+            menuSwitcher.iconRotation = 90f
         } else {
-            menuSwitcher.rotation = -90f
+            menuSwitcher.iconRotation = -90f
         }
     }
 
@@ -257,12 +282,18 @@ class GameBarService : Service() {
             barLayoutParam.x = halfWidth
         }
 
+        if (barExpanded) {
+            menuSwitcher.showFps = false
+        } else {
+            menuSwitcher.showFps = appSettings.showFps
+        }
+
         val safeArea = statusbarHeight + 4.dp
         val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
         barLayoutParam.y = max(min(barLayoutParam.y, safeHeight), safeArea)
 
         updateBackground()
-        updateExpanderMenu()
+        updateMenuSwitcherIcon()
         updateContainerGaps()
         updateLayout()
     }
@@ -325,6 +356,7 @@ class GameBarService : Service() {
                 appSettings.y = barLayoutParam.y
             }
         )
+        menuSwitcher.showFps = appSettings.showFps
     }
 
     private fun panelButton() {

@@ -35,4 +35,8 @@ class AppSettings(private val context: Context) {
         get() = db.getInt("offset_y", context.statusbarHeight + 8.dp)
         set(point) = db.edit().putInt("offset_y", point).apply()
 
+    var showFps
+        get() = db.getBoolean("show_fps", false)
+        set(point) = db.edit().putBoolean("show_fps", point).apply()
+
 }
