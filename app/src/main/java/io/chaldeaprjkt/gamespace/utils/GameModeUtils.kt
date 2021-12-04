@@ -17,6 +17,9 @@ package io.chaldeaprjkt.gamespace.utils
 
 import android.app.GameManager
 import android.content.Context
+import android.os.IDeviceIdleController
+import android.os.RemoteException
+import android.os.ServiceManager
 import android.provider.DeviceConfig
 import io.chaldeaprjkt.gamespace.data.GameConfig
 import io.chaldeaprjkt.gamespace.data.SystemSettings
@@ -72,6 +75,22 @@ object GameModeUtils {
             sys.userGames = sys.userGames.filter { it.packageName != game.packageName }
                 .toMutableList()
                 .apply { add(game) }
+        }
+    }
+
+    fun setupBatteryMode(context: Context, enable: Boolean) {
+        val svc = IDeviceIdleController.Stub.asInterface(
+            ServiceManager.getService(Context.DEVICE_IDLE_CONTROLLER)
+        )
+        try {
+            val isListed = svc?.isPowerSaveWhitelistApp(context.packageName) ?: false
+            if (enable && !isListed) {
+                svc?.addPowerSaveWhitelistApp(context.packageName)
+            } else if (!enable && isListed) {
+                svc?.removePowerSaveWhitelistApp(context.packageName)
+            }
+        } catch (e: RemoteException) {
+            e.printStackTrace()
         }
     }
 }

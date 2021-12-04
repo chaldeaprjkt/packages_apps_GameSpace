@@ -17,8 +17,9 @@ package io.chaldeaprjkt.gamespace.data
 
 import android.content.Context
 import android.provider.Settings
+import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 
-class SystemSettings(context: Context) {
+class SystemSettings(private val context: Context) {
 
     private val resolver = context.contentResolver
 
@@ -68,6 +69,7 @@ class SystemSettings(context: Context) {
                 if (games.isEmpty()) "" else
                     games.joinToString(";") { it.toString() }
             )
+            GameModeUtils.setupBatteryMode(context, games.isNotEmpty())
         }
 
     var userNoHeadsUp
