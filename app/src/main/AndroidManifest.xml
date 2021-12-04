@@ -33,6 +33,7 @@
         android:theme="@style/GameSpaceTheme">
         <activity
             android:name=".settings.SettingsActivity"
+            android:excludeFromRecents="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.android.settings.action.IA_SETTINGS" />
@@ -48,6 +49,7 @@
 
         <activity
             android:name="io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity"
+            android:excludeFromRecents="true"
             android:exported="false"
             android:label="@string/app_selector_label" />
 
