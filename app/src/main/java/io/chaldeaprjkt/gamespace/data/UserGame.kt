@@ -18,7 +18,7 @@ package io.chaldeaprjkt.gamespace.data
 import android.app.GameManager
 
 
-data class UserGame(val packageName: String, val mode: Int = GameManager.GAME_MODE_PERFORMANCE) {
+data class UserGame(val packageName: String, val mode: Int = GameManager.GAME_MODE_STANDARD) {
     override fun toString(): String = "$packageName=$mode"
 
     fun modeName(): String = when (mode) {
