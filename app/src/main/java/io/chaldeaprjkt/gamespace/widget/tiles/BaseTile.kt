@@ -40,6 +40,9 @@ abstract class BaseTile : LinearLayout, View.OnClickListener {
     val title: TextView?
         get() = findViewById(R.id.tile_title)
 
+    val summary: TextView?
+        get() = findViewById(R.id.tile_summary)
+
     val icon: ImageView?
         get() = findViewById(R.id.tile_icon)
 
