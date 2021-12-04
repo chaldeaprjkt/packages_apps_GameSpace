@@ -41,17 +41,14 @@ class GameModeTile : BaseTile {
     private var activeMode: Int = GameManager.GAME_MODE_STANDARD
         set(value) {
             field = value
-            title?.text = when (value) {
-                GameManager.GAME_MODE_PERFORMANCE -> "Mode\nPerformance"
-                GameManager.GAME_MODE_BATTERY -> "Mode\nBattery"
-                else -> "Mode\nStandard"
-            }
+            summary?.text = GameModeUtils.describeMode(context, value)
             isSelected = value != GameManager.GAME_MODE_STANDARD
             GameModeUtils.setActiveGameMode(context, value)
         }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        title?.text = context.getString(R.string.game_mode_title)
         activeMode = GameModeUtils.activeGame?.mode ?: GameManager.GAME_MODE_STANDARD
         icon?.setImageResource(R.drawable.ic_speed)
     }

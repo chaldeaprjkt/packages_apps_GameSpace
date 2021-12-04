@@ -75,13 +75,19 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
             Preference(context).apply {
                 key = it.packageName
                 title = appInfo.loadLabel(context.packageManager)
-                summary = "Mode: ${it.modeName()}"
+                summary = describeMode(it.mode)
                 icon = appInfo.loadIcon(context.packageManager)
                 isPersistent = false
                 onPreferenceClickListener = this@AppListPreferences
             }
         }.sortedBy { it.title.toString().lowercase() }
             .forEach(::addPreference)
+    }
+
+    private fun describeMode(mode: Int): String {
+        val title = context.getString(R.string.game_mode_title)
+        val desc = GameModeUtils.describeMode(context, mode)
+        return "$title: $desc"
     }
 
     private fun registerApp(packageName: String) {

@@ -21,12 +21,6 @@ import android.app.GameManager
 data class UserGame(val packageName: String, val mode: Int = GameManager.GAME_MODE_STANDARD) {
     override fun toString(): String = "$packageName=$mode"
 
-    fun modeName(): String = when (mode) {
-        GameManager.GAME_MODE_PERFORMANCE -> "Performance"
-        GameManager.GAME_MODE_BATTERY -> "Battery"
-        else -> "Standard"
-    }
-
     companion object {
         fun fromSettings(data: String) =
             data.split("=").takeIf { it.size == 2 }

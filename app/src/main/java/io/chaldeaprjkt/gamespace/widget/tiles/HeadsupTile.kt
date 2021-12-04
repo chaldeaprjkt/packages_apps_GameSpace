@@ -36,6 +36,7 @@ class HeadsupTile : BaseTile {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         headsUpEnabled = settings.systemHeadsUp
+        title?.text = context.getString(R.string.heads_up_title)
         icon?.setImageResource(R.drawable.ic_action_heads_up)
     }
 
@@ -43,9 +44,9 @@ class HeadsupTile : BaseTile {
         set(value) {
             field = value
             if (value) {
-                title?.text = "Heads-up\nEnabled"
+                summary?.text = context.getString(R.string.state_enabled)
             } else {
-                title?.text = "Heads-up\nDisabled"
+                summary?.text = context.getString(R.string.state_disabled)
             }
             settings.systemHeadsUp = value
             isSelected = value

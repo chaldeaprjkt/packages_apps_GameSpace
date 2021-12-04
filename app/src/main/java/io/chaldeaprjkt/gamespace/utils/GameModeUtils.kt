@@ -21,6 +21,7 @@ import android.os.IDeviceIdleController
 import android.os.RemoteException
 import android.os.ServiceManager
 import android.provider.DeviceConfig
+import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.GameConfig
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.data.UserGame
@@ -93,4 +94,8 @@ object GameModeUtils {
             e.printStackTrace()
         }
     }
+
+    fun describeMode(context: Context, mode: Int) =
+        context.resources.getStringArray(R.array.game_mode_names)[mode] ?: "Unsupported"
+
 }
