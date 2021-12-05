@@ -307,9 +307,7 @@ class GameBarService : Service() {
         updateLayout { it.alpha = 0f }
         handler.postDelayed({
             try {
-                ScreenUtils.takeScreenshot(handler) {
-                    afterShot()
-                }
+                ScreenUtils.takeScreenshot(this) { afterShot() }
             } catch (e: Exception) {
                 e.printStackTrace()
                 afterShot()

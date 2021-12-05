@@ -15,7 +15,6 @@
  */
 package io.chaldeaprjkt.gamespace.utils
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -23,18 +22,21 @@ import android.content.ServiceConnection
 import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
-import android.os.RemoteException
+import android.os.Looper
 import android.view.WindowManager
 import com.android.internal.util.ScreenshotHelper
 import com.android.systemui.screenrecord.IRemoteRecording
 import java.util.function.Consumer
 import kotlin.system.exitProcess
 
+/**
+ * utilities for interacting with system screenshot and recorder service
+ */
 object ScreenUtils {
-    @SuppressLint("StaticFieldLeak")  // We store the application context, not an activity.
-    private var helper: ScreenshotHelper? = null
+
+    private var isRecorderBound = false
     private var remoteRecording: IRemoteRecording? = null
-    private val serviceConnection = object : ServiceConnection {
+    private val recorderConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             try {
                 remoteRecording = IRemoteRecording.Stub.asInterface(service)
@@ -52,31 +54,31 @@ object ScreenUtils {
     val recorder: IRemoteRecording? get() = remoteRecording
 
     fun bind(context: Context) {
-        if (helper != null) return
-        helper = ScreenshotHelper(context.applicationContext)
-        val recordingServiceIntent =
-            Intent().apply {
-                component = ComponentName(
-                    "com.android.systemui",
-                    "com.android.systemui.screenrecord.RecordingService"
-                )
-            }
-        context.applicationContext.bindService(
-            recordingServiceIntent,
-            serviceConnection,
-            Context.BIND_AUTO_CREATE
-        ).let { if (!it) exitProcess(1) }
+        isRecorderBound = context.bindService(Intent().apply {
+            component = ComponentName(
+                "com.android.systemui",
+                "com.android.systemui.screenrecord.RecordingService"
+            )
+        }, recorderConnection, Context.BIND_AUTO_CREATE)
+        if (!isRecorderBound) {
+            exitProcess(1)
+        }
     }
 
     fun unbind(context: Context) {
-        context.applicationContext.unbindService(serviceConnection)
+        if (isRecorderBound) {
+            context.unbindService(recorderConnection)
+        }
         remoteRecording = null
     }
 
-    fun takeScreenshot(handler: Handler, consumer: Consumer<Uri>? = null) {
-        helper?.takeScreenshot(
+    fun takeScreenshot(context: Context, onComplete: ((Uri?) -> Unit)? = null) {
+        val handler = Handler(Looper.getMainLooper())
+        ScreenshotHelper(context).takeScreenshot(
             WindowManager.TAKE_SCREENSHOT_FULLSCREEN, true, true,
-            WindowManager.ScreenshotSource.SCREENSHOT_GLOBAL_ACTIONS, handler, consumer
+            WindowManager.ScreenshotSource.SCREENSHOT_GLOBAL_ACTIONS, handler, Consumer {
+                handler.post { onComplete?.invoke(it) }
+            }
         )
     }
 }
