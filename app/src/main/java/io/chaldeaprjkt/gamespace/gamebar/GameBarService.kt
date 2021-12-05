@@ -35,13 +35,14 @@ import io.chaldeaprjkt.gamespace.data.AppSettings
 import io.chaldeaprjkt.gamespace.data.SessionState
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.*
-import io.chaldeaprjkt.gamespace.widget.PanelView
 import io.chaldeaprjkt.gamespace.widget.MenuSwitcher
-import kotlinx.coroutines.*
-import java.lang.Runnable
+import io.chaldeaprjkt.gamespace.widget.PanelView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 
 class GameBarService : Service() {
     private val scope = CoroutineScope(Job() + Dispatchers.Main)
@@ -95,19 +96,13 @@ class GameBarService : Service() {
     private var barExpanded: Boolean = false
         set(value) {
             field = value
-            if (value) {
-                menuSwitcher.showFps = false
-
-            } else {
-                menuSwitcher.showFps = appSettings.showFps
-            }
+            menuSwitcher.updateIconState(value, barLayoutParam.x)
             barView.children.forEach {
                 if (it.id != R.id.action_menu_switcher) {
                     it.isVisible = value
                 }
             }
             updateBackground()
-            updateMenuSwitcherIcon()
             updateContainerGaps()
         }
 
@@ -129,9 +124,7 @@ class GameBarService : Service() {
             return
         }
 
-        val fps = data.roundToInt().toString()
-        if (menuSwitcher.text != fps)
-            menuSwitcher.text = fps
+        menuSwitcher.updateFpsValue(data)
     }
 
     override fun onCreate() {
@@ -263,15 +256,6 @@ class GameBarService : Service() {
         }
     }
 
-    private fun updateMenuSwitcherIcon() {
-        menuSwitcher.icon = R.drawable.ic_action_arrow
-        if ((barExpanded && barLayoutParam.x > 0) || (!barExpanded && barLayoutParam.x < 0)) {
-            menuSwitcher.iconRotation = 90f
-        } else {
-            menuSwitcher.iconRotation = -90f
-        }
-    }
-
     private fun dockCollapsedMenu() {
         val halfWidth = wm.maximumWindowMetrics.bounds.width() / 2
         if (barLayoutParam.x < 0) {
@@ -282,20 +266,16 @@ class GameBarService : Service() {
             barLayoutParam.x = halfWidth
         }
 
-        if (barExpanded) {
-            menuSwitcher.showFps = false
-        } else {
-            menuSwitcher.showFps = appSettings.showFps
-        }
 
         val safeArea = statusbarHeight + 4.dp
         val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
         barLayoutParam.y = max(min(barLayoutParam.y, safeHeight), safeArea)
 
         updateBackground()
-        updateMenuSwitcherIcon()
         updateContainerGaps()
         updateLayout()
+        menuSwitcher.showFps = if (barExpanded) false else appSettings.showFps
+        menuSwitcher.updateIconState(barExpanded, barLayoutParam.x)
     }
 
     private fun setupPanelView() {
