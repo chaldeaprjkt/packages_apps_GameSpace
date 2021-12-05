@@ -17,18 +17,15 @@ package io.chaldeaprjkt.gamespace.widget
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.*
-import android.widget.FrameLayout
+import android.view.LayoutInflater
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.LinearLayout
-import androidx.core.view.children
 import androidx.core.view.doOnLayout
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.utils.dp
 import io.chaldeaprjkt.gamespace.utils.isPortrait
-import io.chaldeaprjkt.gamespace.widget.adapter.TileAdapter
-import io.chaldeaprjkt.gamespace.widget.tiles.BaseTile
 import kotlin.math.max
 import kotlin.math.min
 
@@ -37,26 +34,16 @@ class PanelView : LinearLayout {
     constructor(ctx: Context, attrs: AttributeSet?) : super(ctx, attrs)
     constructor(ctx: Context, attrs: AttributeSet?, dsAttr: Int) : super(ctx, attrs, dsAttr)
 
-    private val tileContainer: RecyclerView
-    private lateinit var adapter: TileAdapter
     var relativeY = 0
 
     init {
         LayoutInflater.from(context).inflate(R.layout.panel_view, this, true)
         isClickable = true
         isFocusable = true
-        tileContainer = findViewById(R.id.panel_rv_tiles)
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        val rootInflater = FrameLayout(context)
-        val tiles = LayoutInflater.from(context).inflate(R.layout.tiles, rootInflater, false)
-        (tiles as ViewGroup).children.let {
-            adapter = TileAdapter(it.map { t -> t as BaseTile }.toList())
-            tileContainer.adapter = adapter
-            tileContainer.layoutManager = GridLayoutManager(context, 2)
-        }
         applyRelativeLocation()
     }
 
