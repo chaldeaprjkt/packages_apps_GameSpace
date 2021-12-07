@@ -34,6 +34,7 @@ class PanelView : LinearLayout {
     constructor(ctx: Context, attrs: AttributeSet?) : super(ctx, attrs)
     constructor(ctx: Context, attrs: AttributeSet?, dsAttr: Int) : super(ctx, attrs, dsAttr)
 
+    private var defaultY: Float? = null
     var relativeY = 0
 
     init {
@@ -53,14 +54,18 @@ class PanelView : LinearLayout {
             if (wm.isPortrait()) wm.maximumWindowMetrics.bounds.height() / 2 else LayoutParams.MATCH_PARENT
 
         doOnLayout {
+            if (defaultY == null)
+                defaultY = y
+
             y = if (wm.isPortrait()) {
                 val safeArea = rootWindowInsets.getInsets(WindowInsets.Type.systemBars())
                 val minY = safeArea.top + 16.dp
                 val maxY = safeArea.top + (parent as View).height - safeArea.bottom - height - 16.dp
                 min(max(relativeY, minY), maxY).toFloat()
             } else {
-                0f
+                defaultY ?: 16f
             }
+
         }
     }
 
