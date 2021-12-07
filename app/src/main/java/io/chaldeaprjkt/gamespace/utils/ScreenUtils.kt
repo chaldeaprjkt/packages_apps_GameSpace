@@ -23,6 +23,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.UserHandle
 import android.view.WindowManager
 import com.android.internal.util.ScreenshotHelper
 import com.android.systemui.screenrecord.IRemoteRecording
@@ -54,12 +55,12 @@ object ScreenUtils {
     val recorder: IRemoteRecording? get() = remoteRecording
 
     fun bind(context: Context) {
-        isRecorderBound = context.bindService(Intent().apply {
+        isRecorderBound = context.bindServiceAsUser(Intent().apply {
             component = ComponentName(
                 "com.android.systemui",
                 "com.android.systemui.screenrecord.RecordingService"
             )
-        }, recorderConnection, Context.BIND_AUTO_CREATE)
+        }, recorderConnection, Context.BIND_AUTO_CREATE, UserHandle.CURRENT)
         if (!isRecorderBound) {
             exitProcess(1)
         }

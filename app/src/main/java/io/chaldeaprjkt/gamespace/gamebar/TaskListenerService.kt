@@ -22,6 +22,7 @@ import android.app.TaskStackListener
 import android.content.*
 import android.os.IBinder
 import android.os.RemoteException
+import android.os.UserHandle
 import android.util.Log
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
@@ -79,7 +80,7 @@ class TaskListenerService : Service() {
         GameModeUtils.bind(gameManager)
         super.onCreate()
         Intent(this, GameBarService::class.java).apply {
-            bindService(this, gameBarConnection, Context.BIND_AUTO_CREATE)
+            bindServiceAsUser(this, gameBarConnection, Context.BIND_AUTO_CREATE, UserHandle.CURRENT)
         }
     }
 
