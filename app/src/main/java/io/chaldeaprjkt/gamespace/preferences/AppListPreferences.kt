@@ -54,13 +54,10 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
         }
     }
 
-    private fun getAppInfo(packageName: String): ApplicationInfo? {
-        return try {
-            context.packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-            null
-        }
+    private fun getAppInfo(packageName: String): ApplicationInfo? = try {
+        context.packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+    } catch (e: PackageManager.NameNotFoundException) {
+        null
     }
 
     private fun updateAppList() {
@@ -70,17 +67,19 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
         }
         removeAll()
         addPreference(makeAddPref)
-        apps.map {
-            val appInfo = getAppInfo(it.packageName) ?: return
-            Preference(context).apply {
-                key = it.packageName
-                title = appInfo.loadLabel(context.packageManager)
-                summary = describeMode(it.mode)
-                icon = appInfo.loadIcon(context.packageManager)
-                isPersistent = false
-                onPreferenceClickListener = this@AppListPreferences
+        apps.filter { getAppInfo(it.packageName) != null }
+            .map {
+                val info = getAppInfo(it.packageName)
+                Preference(context).apply {
+                    key = it.packageName
+                    title = info?.loadLabel(context.packageManager)
+                    summary = describeMode(it.mode)
+                    icon = info?.loadIcon(context.packageManager)
+                    isPersistent = false
+                    onPreferenceClickListener = this@AppListPreferences
+                }
             }
-        }.sortedBy { it.title.toString().lowercase() }
+            .sortedBy { it.title.toString().lowercase() }
             .forEach(::addPreference)
     }
 
