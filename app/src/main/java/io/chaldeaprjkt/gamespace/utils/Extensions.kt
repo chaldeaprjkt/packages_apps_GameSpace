@@ -15,6 +15,7 @@
  */
 package io.chaldeaprjkt.gamespace.utils
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Resources.getSystem
 import android.graphics.Point
@@ -39,3 +40,7 @@ val Int.dp
 
 fun WindowManager.isPortrait() =
     maximumWindowMetrics.bounds.width() < maximumWindowMetrics.bounds.height()
+
+fun Activity.assertStarterOrigin() =
+    intent?.getStringExtra("referer")?.takeIf { it.isNotEmpty() }
+        ?: throw SecurityException("failed to assert starter origin")

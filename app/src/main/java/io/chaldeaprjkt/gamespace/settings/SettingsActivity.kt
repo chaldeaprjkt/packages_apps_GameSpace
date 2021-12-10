@@ -15,17 +15,19 @@
  */
 package io.chaldeaprjkt.gamespace.settings
 
+import com.android.settingslib.R as SettingsR
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
 import io.chaldeaprjkt.gamespace.gamebar.TaskListenerService
-import com.android.settingslib.R as SettingsR
+import io.chaldeaprjkt.gamespace.utils.assertStarterOrigin
 
 class SettingsActivity : CollapsingToolbarBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        assertStarterOrigin()
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             supportFragmentManager
