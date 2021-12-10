@@ -92,7 +92,8 @@ class SystemSettings(private val context: Context) {
 
     private fun Boolean.toInt() = if (this) 1 else 0
 
-    fun applyUserSettings(session: SessionState) {
+    fun applyUserSettings(session: SessionState?) {
+        session ?: return
         session.headsUp = systemHeadsUp
         session.autoBrightness = autoBrightness
         session.threeScreenshot = threeScreenshot
@@ -107,7 +108,8 @@ class SystemSettings(private val context: Context) {
         }
     }
 
-    fun restoreUserSettings(session: SessionState) {
+    fun restoreUserSettings(session: SessionState?) {
+        session ?: return
         if (userNoHeadsUp) {
             session.headsUp?.let { systemHeadsUp = it }
         }

@@ -24,17 +24,27 @@ import android.graphics.Point
 import android.os.Binder
 import android.os.Handler
 import android.os.Looper
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import androidx.core.view.*
+import androidx.core.view.children
+import androidx.core.view.isVisible
+import androidx.core.view.marginStart
+import androidx.core.view.updateMargins
+import androidx.core.view.updatePadding
 import com.android.systemui.screenrecord.IRecordingCallback
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.AppSettings
-import io.chaldeaprjkt.gamespace.data.SessionState
-import io.chaldeaprjkt.gamespace.data.SystemSettings
-import io.chaldeaprjkt.gamespace.utils.*
+import io.chaldeaprjkt.gamespace.utils.FrameRateUtils
+import io.chaldeaprjkt.gamespace.utils.ScreenUtils
+import io.chaldeaprjkt.gamespace.utils.dp
+import io.chaldeaprjkt.gamespace.utils.registerDraggableTouchListener
+import io.chaldeaprjkt.gamespace.utils.statusbarHeight
 import io.chaldeaprjkt.gamespace.widget.MenuSwitcher
 import io.chaldeaprjkt.gamespace.widget.PanelView
 import kotlinx.coroutines.CoroutineScope
@@ -47,10 +57,8 @@ import kotlin.math.min
 class GameBarService : Service() {
     private val scope = CoroutineScope(Job() + Dispatchers.Main)
     private val wm by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
-    private val settings by lazy { SystemSettings(applicationContext) }
     private val appSettings by lazy { AppSettings(applicationContext) }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
-    private val session by lazy { SessionState() }
     private val taskManager by lazy { ActivityTaskManager.getService() }
 
     private val barLayoutParam =
@@ -174,7 +182,6 @@ class GameBarService : Service() {
     fun onGameLeave() = scope.launch { onActionStop() }
 
     private fun onActionStart() {
-        settings.applyUserSettings(session)
         rootBarView.isVisible = false
         rootBarView.alpha = 0f
         if (!rootBarView.isAttachedToWindow) {
@@ -185,7 +192,6 @@ class GameBarService : Service() {
 
     private fun onActionStop() {
         FrameRateUtils.unbind()
-        settings.restoreUserSettings(session)
         if (::rootPanelView.isInitialized && rootPanelView.isAttachedToWindow) {
             wm.removeViewImmediate(rootPanelView)
         }

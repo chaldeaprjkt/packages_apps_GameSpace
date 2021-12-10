@@ -24,6 +24,7 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.os.UserHandle
 import android.util.Log
+import io.chaldeaprjkt.gamespace.data.SessionState
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
@@ -61,7 +62,6 @@ class TaskListenerService : Service() {
     }
 
     private var previousApp = UNKNOWN_APP
-    private var sessionKey = UNKNOWN_APP
     private lateinit var gameBar: GameBarService
     private lateinit var gameManager: GameManager
 
@@ -92,6 +92,10 @@ class TaskListenerService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        // restore settings in case the listener got destroyed gracefully
+        if (session != null) {
+            settings.restoreUserSettings(session)
+        }
         GameModeUtils.unbind()
         unbindService(gameBarConnection)
         ScreenUtils.unbind(this)
@@ -102,17 +106,26 @@ class TaskListenerService : Service() {
     private fun isGame(packageName: String) =
         settings.userGames.any { it.packageName == packageName }
 
+    private var session: SessionState? = null
+
     private fun checkTaskStack(info: ActivityTaskManager.RootTaskInfo?) {
         try {
             val currentApp = info?.topActivity?.packageName ?: return
             if (currentApp == previousApp) return
             if (isGame(currentApp)) {
-                sessionKey = currentApp
+                if (session?.packageName == previousApp) {
+                    // looks like user moving to other game
+                    // restore the session first before applying new one
+                    settings.restoreUserSettings(session)
+                }
+                session = SessionState(currentApp)
+                settings.applyUserSettings(session)
                 applyGameModeConfig(currentApp)
                 gameBar.onGameStart()
-            } else if (sessionKey != UNKNOWN_APP) {
+            } else if (session != null) {
                 gameBar.onGameLeave()
-                sessionKey = UNKNOWN_APP
+                settings.restoreUserSettings(session)
+                session = null
             }
 
             previousApp = currentApp
