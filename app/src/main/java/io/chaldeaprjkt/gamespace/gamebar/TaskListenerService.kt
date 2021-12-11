@@ -66,6 +66,7 @@ class TaskListenerService : Service() {
     private lateinit var gameManager: GameManager
 
     override fun onCreate() {
+        isRunning = true
         try {
             taskManager.registerTaskStackListener(listener)
             ScreenUtils.bind(this)
@@ -100,6 +101,7 @@ class TaskListenerService : Service() {
         unbindService(gameBarConnection)
         ScreenUtils.unbind(this)
         unregisterReceiver(screenReceiver)
+        isRunning = false
         super.onDestroy()
     }
 
@@ -148,5 +150,11 @@ class TaskListenerService : Service() {
     companion object {
         const val TAG = "TaskListener"
         const val UNKNOWN_APP = "unknown"
+        var isRunning = false
+            private set
+
+        fun start(context: Context) = Intent(context, TaskListenerService::class.java)
+            .takeIf { !isRunning }
+            ?.run { context.startServiceAsUser(this, UserHandle.CURRENT) }
     }
 }

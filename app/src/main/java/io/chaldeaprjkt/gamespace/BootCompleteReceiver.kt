@@ -18,14 +18,11 @@ package io.chaldeaprjkt.gamespace
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.UserHandle
 import io.chaldeaprjkt.gamespace.gamebar.TaskListenerService
 
 class BootCompleteReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        context?.startServiceAsUser(
-            Intent(context, TaskListenerService::class.java),
-            UserHandle.CURRENT
-        )
+        context ?: return
+        TaskListenerService.start(context)
     }
 }

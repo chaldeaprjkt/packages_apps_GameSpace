@@ -16,9 +16,6 @@
 package io.chaldeaprjkt.gamespace.settings
 
 import com.android.settingslib.R as SettingsR
-import android.app.ActivityManager
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
 import io.chaldeaprjkt.gamespace.gamebar.TaskListenerService
@@ -34,20 +31,7 @@ class SettingsActivity : CollapsingToolbarBaseActivity() {
                 .beginTransaction()
                 .replace(SettingsR.id.content_frame, SettingsFragment())
                 .commit()
-            initService()
-        }
-    }
-
-    private fun initService() {
-        try {
-            val service = TaskListenerService::class.java
-            val am = (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
-            val services = am.getRunningServices(Integer.MAX_VALUE)
-            if (!services.any { it.service.className == service.name }) {
-                startService(Intent(this, service))
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+            TaskListenerService.start(this)
         }
     }
 }
