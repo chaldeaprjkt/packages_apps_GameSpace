@@ -29,10 +29,9 @@ import io.chaldeaprjkt.gamespace.utils.isPortrait
 import kotlin.math.max
 import kotlin.math.min
 
-class PanelView : LinearLayout {
-    constructor(ctx: Context) : super(ctx)
-    constructor(ctx: Context, attrs: AttributeSet?) : super(ctx, attrs)
-    constructor(ctx: Context, attrs: AttributeSet?, dsAttr: Int) : super(ctx, attrs, dsAttr)
+class PanelView @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : LinearLayout(context, attrs) {
 
     private var defaultY: Float? = null
     var relativeY = 0

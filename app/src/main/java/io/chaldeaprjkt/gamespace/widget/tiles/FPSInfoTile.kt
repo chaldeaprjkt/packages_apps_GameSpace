@@ -21,17 +21,11 @@ import android.view.View
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.AppSettings
 
-class FPSInfoTile : BaseTile {
-    constructor(ctx: Context) : super(ctx)
-    constructor(ctx: Context, attrs: AttributeSet?) : super(ctx, attrs)
-    constructor(ctx: Context, attrs: AttributeSet?, dsAttr: Int) : super(ctx, attrs, dsAttr)
+class FPSInfoTile @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : BaseTile(context, attrs) {
 
     private val appSettings by lazy { AppSettings(context) }
-
-    init {
-        isClickable = true
-        isFocusable = true
-    }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -40,7 +34,7 @@ class FPSInfoTile : BaseTile {
         icon?.setImageResource(R.drawable.ic_fps)
     }
 
-    private var showFpsInfo: Boolean = false
+    private var showFpsInfo = false
         set(value) {
             field = value
             if (value) {

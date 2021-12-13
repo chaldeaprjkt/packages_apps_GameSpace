@@ -22,15 +22,9 @@ import android.view.View
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 
-class GameModeTile : BaseTile {
-    constructor(ctx: Context) : super(ctx)
-    constructor(ctx: Context, attrs: AttributeSet?) : super(ctx, attrs)
-    constructor(ctx: Context, attrs: AttributeSet?, dsAttr: Int) : super(ctx, attrs, dsAttr)
-
-    init {
-        isClickable = true
-        isFocusable = true
-    }
+class GameModeTile @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : BaseTile(context, attrs) {
 
     private val modes = listOf(
         GameManager.GAME_MODE_STANDARD,
@@ -38,7 +32,7 @@ class GameModeTile : BaseTile {
         GameManager.GAME_MODE_BATTERY,
     )
 
-    private var activeMode: Int = GameManager.GAME_MODE_STANDARD
+    private var activeMode = GameManager.GAME_MODE_STANDARD
         set(value) {
             field = value
             summary?.text = GameModeUtils.describeMode(context, value)

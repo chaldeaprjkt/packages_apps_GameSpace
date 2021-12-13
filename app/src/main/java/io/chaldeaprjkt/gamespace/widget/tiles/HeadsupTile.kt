@@ -21,17 +21,11 @@ import android.view.View
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 
-class HeadsupTile : BaseTile {
-    constructor(ctx: Context) : super(ctx)
-    constructor(ctx: Context, attrs: AttributeSet?) : super(ctx, attrs)
-    constructor(ctx: Context, attrs: AttributeSet?, dsAttr: Int) : super(ctx, attrs, dsAttr)
+class HeadsupTile @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : BaseTile(context, attrs) {
 
     private val settings by lazy { SystemSettings(context) }
-
-    init {
-        isClickable = true
-        isFocusable = true
-    }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -40,7 +34,7 @@ class HeadsupTile : BaseTile {
         icon?.setImageResource(R.drawable.ic_action_heads_up)
     }
 
-    private var headsUpEnabled: Boolean = false
+    private var headsUpEnabled = false
         set(value) {
             field = value
             if (value) {

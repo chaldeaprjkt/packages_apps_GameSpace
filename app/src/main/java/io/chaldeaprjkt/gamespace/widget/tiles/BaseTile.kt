@@ -26,11 +26,9 @@ import android.widget.TextView
 import io.chaldeaprjkt.gamespace.R
 
 
-abstract class BaseTile : LinearLayout, View.OnClickListener {
-    constructor(ctx: Context) : super(ctx)
-    constructor(ctx: Context, attrs: AttributeSet?) : super(ctx, attrs)
-    constructor(ctx: Context, attrs: AttributeSet?, dsAttr: Int) : super(ctx, attrs, dsAttr)
-
+abstract class BaseTile @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : LinearLayout(context, attrs), View.OnClickListener {
     init {
         isClickable = true
         isFocusable = true

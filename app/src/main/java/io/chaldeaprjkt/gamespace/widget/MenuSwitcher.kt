@@ -10,11 +10,9 @@ import io.chaldeaprjkt.gamespace.data.AppSettings
 import io.chaldeaprjkt.gamespace.utils.dp
 import kotlin.math.roundToInt
 
-class MenuSwitcher : LinearLayout {
-
-    constructor(ctx: Context) : super(ctx)
-    constructor(ctx: Context, attrs: AttributeSet?) : super(ctx, attrs)
-    constructor(ctx: Context, attrs: AttributeSet?, dsAttr: Int) : super(ctx, attrs, dsAttr)
+class MenuSwitcher @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : LinearLayout(context, attrs) {
 
     init {
         LayoutInflater.from(context).inflate(R.layout.bar_menu_switcher, this, true)
