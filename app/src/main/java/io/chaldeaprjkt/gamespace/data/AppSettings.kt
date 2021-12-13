@@ -39,4 +39,7 @@ class AppSettings(private val context: Context) {
         get() = db.getBoolean("show_fps", false)
         set(point) = db.edit().putBoolean("show_fps", point).apply()
 
+    var stayAwake
+        get() = db.getBoolean("gamespace_stay_awake", false)
+        set(value) = db.edit().putBoolean("gamespace_stay_awake", value).apply()
 }

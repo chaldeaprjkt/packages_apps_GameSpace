@@ -15,6 +15,7 @@
  */
 package io.chaldeaprjkt.gamespace.utils
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -23,6 +24,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import android.os.UserHandle
 import android.view.WindowManager
 import com.android.internal.util.ScreenshotHelper
@@ -37,6 +39,7 @@ object ScreenUtils {
 
     private var isRecorderBound = false
     private var remoteRecording: IRemoteRecording? = null
+    private var wakelock: PowerManager.WakeLock? = null
     private val recorderConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             try {
@@ -64,9 +67,12 @@ object ScreenUtils {
         if (!isRecorderBound) {
             exitProcess(1)
         }
+        wakelock = (context.getSystemService(Context.POWER_SERVICE) as PowerManager)
+            .newWakeLock(PowerManager.FULL_WAKE_LOCK, "GameSpace:ScreenUtils")
     }
 
     fun unbind(context: Context) {
+        wakelock?.takeIf { it.isHeld }?.release()
         if (isRecorderBound) {
             context.unbindService(recorderConnection)
         }
@@ -81,5 +87,14 @@ object ScreenUtils {
                 handler.post { onComplete?.invoke(it) }
             }
         )
+    }
+
+    @SuppressLint("WakelockTimeout")
+    fun stayAwake(enable: Boolean) {
+        if (enable) {
+            wakelock?.takeIf { !it.isHeld }?.acquire()
+        } else {
+            wakelock?.takeIf { it.isHeld }?.release()
+        }
     }
 }

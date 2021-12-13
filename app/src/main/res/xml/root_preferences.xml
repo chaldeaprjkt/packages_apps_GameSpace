@@ -32,6 +32,12 @@
             android:key="gamespace_tfgesture_disabled"
             android:summary="@string/three_screenshot_disabled_summary"
             android:title="@string/three_screenshot_disabled_title" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="gamespace_stay_awake"
+            android:summary="@string/stay_awake_summary"
+            android:title="@string/stay_awake_title" />
     </PreferenceCategory>
 
     <io.chaldeaprjkt.gamespace.preferences.AppListPreferences

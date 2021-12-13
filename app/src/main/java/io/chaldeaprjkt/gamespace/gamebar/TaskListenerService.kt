@@ -24,6 +24,7 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.os.UserHandle
 import android.util.Log
+import io.chaldeaprjkt.gamespace.data.AppSettings
 import io.chaldeaprjkt.gamespace.data.SessionState
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
@@ -37,6 +38,7 @@ import kotlinx.coroutines.launch
 class TaskListenerService : Service() {
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
     private val taskManager by lazy { ActivityTaskManager.getService() }
+    private val appSettings by lazy { AppSettings(applicationContext) }
     private val settings by lazy { SystemSettings(applicationContext) }
     private val listener by lazy {
         object : TaskStackListener() {
@@ -49,6 +51,12 @@ class TaskListenerService : Service() {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 previousApp = UNKNOWN_APP
+                when (intent?.action) {
+                    Intent.ACTION_SCREEN_OFF -> {
+                        // release it when user turn off the screen using power button
+                        ScreenUtils.stayAwake(false)
+                    }
+                }
             }
         }
     }
@@ -124,7 +132,9 @@ class TaskListenerService : Service() {
                 settings.applyUserSettings(session)
                 applyGameModeConfig(currentApp)
                 gameBar.onGameStart()
+                ScreenUtils.stayAwake(appSettings.stayAwake)
             } else if (session != null) {
+                ScreenUtils.stayAwake(false)
                 gameBar.onGameLeave()
                 settings.restoreUserSettings(session)
                 session = null

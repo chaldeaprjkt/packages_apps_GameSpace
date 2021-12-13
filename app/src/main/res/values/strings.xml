@@ -40,4 +40,6 @@
     </string-array>
     <string name="heads_up_title">Heads-up</string>
     <string name="fps_Info_title">FPS Info</string>
+    <string name="stay_awake_title">Stay Awake</string>
+    <string name="stay_awake_summary">Keep screen awake while in the game</string>
 </resources>
