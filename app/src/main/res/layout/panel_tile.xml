@@ -39,6 +39,9 @@
         android:id="@+id/tile_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
         android:text="@string/app_search_title"
         android:textSize="13sp" />
 
@@ -47,6 +50,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:alpha="0.7"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
         android:text="@string/app_search_title"
         android:textSize="11sp" />
 
