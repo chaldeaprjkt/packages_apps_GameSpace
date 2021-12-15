@@ -56,8 +56,11 @@ android {
     }
 }
 
+def androidPath = "${rootDir}/../../../"
+def frameworkClassesJar = "${androidPath}/out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/classes.jar"
+
 dependencies {
-    compileOnly files("${rootDir}/prebuilts/framework.jar")
+    compileOnly files(frameworkClassesJar)
     implementation project(path: ':SettingsLibParts')
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.0'
@@ -68,7 +71,7 @@ dependencies {
 allprojects {
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {
-            options.compilerArgs.add("-Xbootclasspath/p:${rootDir}/prebuilts/framework.jar")
+            options.compilerArgs.add("-Xbootclasspath/p:$frameworkClassesJar")
         }
     }
 }
