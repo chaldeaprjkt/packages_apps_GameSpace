@@ -91,8 +91,8 @@ class SystemSettings(private val context: Context) {
         }
     }
 
-    fun restoreUserSettings(session: SessionState?) {
-        session ?: return
+    fun restoreUserSettings(previousSession: SessionState?) {
+        val session = previousSession?.copy() ?: return
         if (appSettings.noHeadsUp) {
             session.headsUp?.let { systemHeadsUp = it }
         }
