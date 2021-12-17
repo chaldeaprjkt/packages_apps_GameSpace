@@ -44,10 +44,9 @@ class AppsAdapter(private val pm: PackageManager, private val apps: List<Applica
     }
 
     override fun onBindViewHolder(holder: AppsItemViewHolder, position: Int) {
-        holder.bind(currentList[position])
-        holder.itemView.setOnClickListener {
+        holder.bind(currentList[position]) {
             if (::onClick.isInitialized) {
-                onClick.invoke(currentList[position])
+                onClick.invoke(it)
             }
         }
     }
