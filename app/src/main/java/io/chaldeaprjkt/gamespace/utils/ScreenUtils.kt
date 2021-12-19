@@ -67,6 +67,7 @@ object ScreenUtils {
         if (!isRecorderBound) {
             exitProcess(1)
         }
+        @Suppress("DEPRECATION") // we use it for stay-awake feature
         wakelock = (context.getSystemService(Context.POWER_SERVICE) as PowerManager)
             .newWakeLock(PowerManager.FULL_WAKE_LOCK, "GameSpace:ScreenUtils")
     }
