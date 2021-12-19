@@ -22,9 +22,8 @@ import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 class SystemSettings(private val context: Context) {
 
     private val resolver = context.contentResolver
-    private val appSettings by lazy { AppSettings(context) }
 
-    var systemHeadsUp
+    var headsUp
         get() =
             Settings.Global.getInt(resolver, Settings.Global.HEADS_UP_NOTIFICATIONS_ENABLED, 1) == 1
         set(it) {
@@ -74,35 +73,6 @@ class SystemSettings(private val context: Context) {
         }
 
     private fun Boolean.toInt() = if (this) 1 else 0
-
-    fun applyUserSettings(session: SessionState?) {
-        session ?: return
-        session.headsUp = systemHeadsUp
-        session.autoBrightness = autoBrightness
-        session.threeScreenshot = threeScreenshot
-        if (appSettings.noHeadsUp) {
-            systemHeadsUp = false
-        }
-        if (appSettings.noAutoBrightness) {
-            autoBrightness = false
-        }
-        if (appSettings.noThreeScreenshot) {
-            threeScreenshot = false
-        }
-    }
-
-    fun restoreUserSettings(previousSession: SessionState?) {
-        val session = previousSession?.copy() ?: return
-        if (appSettings.noHeadsUp) {
-            session.headsUp?.let { systemHeadsUp = it }
-        }
-        if (appSettings.noAutoBrightness) {
-            session.autoBrightness?.let { autoBrightness = it }
-        }
-        if (appSettings.noThreeScreenshot) {
-            session.threeScreenshot?.let { threeScreenshot = it }
-        }
-    }
 
     companion object {
         const val KEY_GAME_LIST = "gamespace_game_list"

@@ -29,7 +29,7 @@ class HeadsupTile @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        headsUpEnabled = settings.systemHeadsUp
+        headsUpEnabled = settings.headsUp
         title?.text = context.getString(R.string.heads_up_title)
         icon?.setImageResource(R.drawable.ic_action_heads_up)
     }
@@ -42,7 +42,7 @@ class HeadsupTile @JvmOverloads constructor(
             } else {
                 summary?.text = context.getString(R.string.state_disabled)
             }
-            settings.systemHeadsUp = value
+            settings.headsUp = value
             isSelected = value
         }
 

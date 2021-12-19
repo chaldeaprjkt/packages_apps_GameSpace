@@ -24,6 +24,7 @@ android_app {
         "com.google.android.material_material",
         "kotlin-stdlib",
         "kotlinx-coroutines-android",
+        "gson-prebuilt-jar",
     ],
     kotlincflags: [
         "-Xuse-experimental=kotlin.Experimental",

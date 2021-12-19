@@ -25,7 +25,7 @@ import android.os.RemoteException
 import android.os.UserHandle
 import android.util.Log
 import io.chaldeaprjkt.gamespace.data.AppSettings
-import io.chaldeaprjkt.gamespace.data.SessionState
+import io.chaldeaprjkt.gamespace.data.GameSession
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
@@ -40,6 +40,8 @@ class TaskListenerService : Service() {
     private val taskManager by lazy { ActivityTaskManager.getService() }
     private val appSettings by lazy { AppSettings(applicationContext) }
     private val settings by lazy { SystemSettings(applicationContext) }
+    private val session by lazy { GameSession(applicationContext) }
+
     private val listener by lazy {
         object : TaskStackListener() {
             override fun onTaskStackChanged() {
@@ -63,10 +65,16 @@ class TaskListenerService : Service() {
     private val gameBarConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             gameBar = (service as GameBarService.GameBarBinder).getService()
+            if (session.state != null) {
+                // cleanup staled session
+                session.unregister()
+            }
             checkTaskStack(taskManager.focusedRootTaskInfo)
         }
 
-        override fun onServiceDisconnected(name: ComponentName?) {}
+        override fun onServiceDisconnected(name: ComponentName?) {
+            session.unregister()
+        }
     }
 
     private var previousApp = UNKNOWN_APP
@@ -102,9 +110,7 @@ class TaskListenerService : Service() {
 
     override fun onDestroy() {
         // restore settings in case the listener got destroyed gracefully
-        if (session != null) {
-            settings.restoreUserSettings(session)
-        }
+        session.unregister()
         GameModeUtils.unbind()
         unbindService(gameBarConnection)
         ScreenUtils.unbind(this)
@@ -116,28 +122,19 @@ class TaskListenerService : Service() {
     private fun isGame(packageName: String) =
         settings.userGames.any { it.packageName == packageName }
 
-    private var session: SessionState? = null
-
     private fun checkTaskStack(info: ActivityTaskManager.RootTaskInfo?) {
         try {
             val currentApp = info?.topActivity?.packageName ?: return
             if (currentApp == previousApp) return
             if (isGame(currentApp)) {
-                if (session?.packageName == previousApp) {
-                    // looks like user moving to other game
-                    // restore the session first before applying new one
-                    settings.restoreUserSettings(session)
-                }
-                session = SessionState(currentApp)
-                settings.applyUserSettings(session)
+                session.register(currentApp)
                 applyGameModeConfig(currentApp)
                 gameBar.onGameStart()
                 ScreenUtils.stayAwake(appSettings.stayAwake)
-            } else if (session != null) {
+            } else if (session.state != null) {
+                session.unregister()
                 ScreenUtils.stayAwake(false)
                 gameBar.onGameLeave()
-                settings.restoreUserSettings(session)
-                session = null
             }
 
             previousApp = currentApp

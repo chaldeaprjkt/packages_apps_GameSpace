@@ -15,6 +15,9 @@
  */
 package io.chaldeaprjkt.gamespace.data
 
+import androidx.annotation.Keep
+
+@Keep
 data class SessionState(
     var packageName: String,
     var autoBrightness: Boolean? = null,
