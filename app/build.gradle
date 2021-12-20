@@ -29,8 +29,8 @@ android {
         release {
             debuggable true
             signingConfig signingConfigs.platform
-            minifyEnabled true
-            proguardFiles 'src/main/proguard-android.txt', 'src/main/proguard-rules.pro'
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {

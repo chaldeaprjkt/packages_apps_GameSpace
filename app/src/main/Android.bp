@@ -29,13 +29,7 @@ android_app {
         "-Xuse-experimental=kotlin.Experimental",
         "-Xuse-experimental=kotlin.ExperimentalStdlibApi",
     ],
-    optimize: {
-        obfuscate: true,
-        proguard_flags_files: [
-            "proguard-android.txt",
-            "proguard-rules.pro",
-        ],
-    },
+
     required: ["privapp_whitelist_io.chaldeaprjkt.gamespace.xml"],
 }
 
