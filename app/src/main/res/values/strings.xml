@@ -42,4 +42,12 @@
     <string name="fps_Info_title">FPS Info</string>
     <string name="stay_awake_title">Stay Awake</string>
     <string name="stay_awake_summary">Keep screen awake while in the game</string>
+
+    <string name="ringer_mode_title">In-game ringer mode</string>
+    <string-array name="ringer_mode_entries">
+        <item>Silent</item>
+        <item>Vibrate</item>
+        <item>Normal</item>
+    </string-array>
+
 </resources>

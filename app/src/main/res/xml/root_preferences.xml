@@ -22,6 +22,14 @@
             android:summary="@string/heads_up_disabled_summary"
             android:title="@string/heads_up_disabled_title" />
 
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/ringer_mode_entries"
+            android:entryValues="@array/ringer_mode_values"
+            android:key="gamespace_ringer_mode"
+            android:summary="%s"
+            android:title="@string/ringer_mode_title" />
+
         <SwitchPreference
             android:key="gamespace_auto_brightness_disabled"
             android:summary="@string/auto_brightness_disabled_summary"

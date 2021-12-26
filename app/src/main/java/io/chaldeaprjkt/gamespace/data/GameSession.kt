@@ -16,6 +16,7 @@
 package io.chaldeaprjkt.gamespace.data
 
 import android.content.Context
+import android.media.AudioManager
 import com.google.gson.Gson
 
 class GameSession(private val context: Context) {
@@ -24,6 +25,7 @@ class GameSession(private val context: Context) {
     private val appSettings by lazy { AppSettings(context) }
     private val systemSettings by lazy { SystemSettings(context) }
     private val gson by lazy { Gson() }
+    private val audioManager by lazy { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
 
     var state
         get() = db.getString(KEY_SAVED_SESSION, "")
@@ -52,7 +54,8 @@ class GameSession(private val context: Context) {
             packageName = sessionName,
             autoBrightness = systemSettings.autoBrightness,
             headsUp = systemSettings.headsUp,
-            threeScreenshot = systemSettings.threeScreenshot
+            threeScreenshot = systemSettings.threeScreenshot,
+            ringerMode = audioManager.ringerModeInternal,
         )
         if (appSettings.noHeadsUp) {
             systemSettings.headsUp = false
@@ -63,6 +66,7 @@ class GameSession(private val context: Context) {
         if (appSettings.noThreeScreenshot) {
             systemSettings.threeScreenshot = false
         }
+        audioManager.ringerModeInternal = appSettings.ringerMode
     }
 
     fun unregister() {
@@ -76,6 +80,7 @@ class GameSession(private val context: Context) {
         if (appSettings.noThreeScreenshot) {
             orig.threeScreenshot?.let { systemSettings.threeScreenshot = it }
         }
+        audioManager.ringerModeInternal = orig.ringerMode
         state = null
     }
 
