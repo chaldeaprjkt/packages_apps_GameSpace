@@ -18,6 +18,9 @@
     package="io.chaldeaprjkt.gamespace"
     android:sharedUserId="android.uid.system">
 
+    <permission android:name="io.chaldeaprjkt.gamespace.permission.MANAGE_GAME_MODE" />
+
+    <uses-permission android:name="io.chaldeaprjkt.gamespace.permission.MANAGE_GAME_MODE" />
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
     <uses-permission android:name="android.permission.MANAGE_GAME_MODE" />
@@ -45,21 +48,16 @@
 
         <service
             android:name=".gamebar.TaskListenerService"
-            android:exported="true"
-            android:permission="io.chaldeaprjkt.gamespace.service.TaskListener">
-            <intent-filter>
-                <action android:name="io.chaldeaprjkt.gamespace.TaskListener" />
-            </intent-filter>
-        </service>
+            android:exported="false"
+            android:process=":tasklistener" />
+
+        <service
+            android:name=".gamebar.SessionService"
+            android:exported="false" />
 
         <service
             android:name=".gamebar.GameBarService"
-            android:exported="true"
-            android:permission="io.chaldeaprjkt.gamespace.service.GameUtils">
-            <intent-filter>
-                <action android:name="io.chaldeaprjkt.gamespace.GameUtils" />
-            </intent-filter>
-        </service>
+            android:exported="false" />
 
         <receiver
             android:name=".BootCompleteReceiver"
@@ -68,6 +66,16 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".gamebar.GameBroadcastReceiver"
+            android:exported="true"
+            android:permission="io.chaldeaprjkt.gamespace.permission.MANAGE_GAME_MODE">
+            <intent-filter>
+                <action android:name="io.chaldeaprjkt.gamespace.action.GAME_START" />
+                <action android:name="io.chaldeaprjkt.gamespace.action.GAME_STOP" />
             </intent-filter>
         </receiver>
     </application>

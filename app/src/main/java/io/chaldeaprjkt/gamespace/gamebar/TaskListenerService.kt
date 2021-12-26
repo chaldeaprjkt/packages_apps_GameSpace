@@ -16,31 +16,20 @@
 package io.chaldeaprjkt.gamespace.gamebar
 
 import android.app.ActivityTaskManager
-import android.app.GameManager
 import android.app.Service
 import android.app.TaskStackListener
-import android.content.*
+import android.content.Context
+import android.content.Intent
 import android.os.IBinder
 import android.os.RemoteException
 import android.os.UserHandle
 import android.util.Log
-import io.chaldeaprjkt.gamespace.data.AppSettings
-import io.chaldeaprjkt.gamespace.data.GameSession
 import io.chaldeaprjkt.gamespace.data.SystemSettings
-import io.chaldeaprjkt.gamespace.utils.GameModeUtils
-import io.chaldeaprjkt.gamespace.utils.ScreenUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 
 class TaskListenerService : Service() {
-    private val scope = CoroutineScope(Job() + Dispatchers.IO)
     private val taskManager by lazy { ActivityTaskManager.getService() }
-    private val appSettings by lazy { AppSettings(applicationContext) }
     private val settings by lazy { SystemSettings(applicationContext) }
-    private val session by lazy { GameSession(applicationContext) }
 
     private val listener by lazy {
         object : TaskStackListener() {
@@ -49,55 +38,17 @@ class TaskListenerService : Service() {
             }
         }
     }
-    private val screenReceiver by lazy {
-        object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                previousApp = UNKNOWN_APP
-                when (intent?.action) {
-                    Intent.ACTION_SCREEN_OFF -> {
-                        // release it when user turn off the screen using power button
-                        ScreenUtils.stayAwake(false)
-                    }
-                }
-            }
-        }
-    }
-    private val gameBarConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            gameBar = (service as GameBarService.GameBarBinder).getService()
-            if (session.state != null) {
-                // cleanup staled session
-                session.unregister()
-            }
-            checkTaskStack(taskManager.focusedRootTaskInfo)
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            session.unregister()
-        }
-    }
 
     private var previousApp = UNKNOWN_APP
-    private lateinit var gameBar: GameBarService
-    private lateinit var gameManager: GameManager
+    private var isInGameMode = false
 
     override fun onCreate() {
+        super.onCreate()
         isRunning = true
         try {
             taskManager.registerTaskStackListener(listener)
-            ScreenUtils.bind(this)
         } catch (e: RemoteException) {
             Log.d(TAG, e.toString())
-        }
-        registerReceiver(screenReceiver, IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
-            addAction(Intent.ACTION_SCREEN_ON)
-        })
-        gameManager = getSystemService(Context.GAME_SERVICE) as GameManager
-        GameModeUtils.bind(gameManager)
-        super.onCreate()
-        Intent(this, GameBarService::class.java).apply {
-            bindServiceAsUser(this, gameBarConnection, Context.BIND_AUTO_CREATE, UserHandle.CURRENT)
         }
     }
 
@@ -109,12 +60,7 @@ class TaskListenerService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
-        // restore settings in case the listener got destroyed gracefully
-        session.unregister()
-        GameModeUtils.unbind()
-        unbindService(gameBarConnection)
-        ScreenUtils.unbind(this)
-        unregisterReceiver(screenReceiver)
+        taskManager.unregisterTaskStackListener(listener)
         isRunning = false
         super.onDestroy()
     }
@@ -124,33 +70,27 @@ class TaskListenerService : Service() {
 
     private fun checkTaskStack(info: ActivityTaskManager.RootTaskInfo?) {
         try {
-            val currentApp = info?.topActivity?.packageName ?: return
-            if (currentApp == previousApp) return
-            if (isGame(currentApp)) {
-                session.register(currentApp)
-                applyGameModeConfig(currentApp)
-                gameBar.onGameStart()
-                ScreenUtils.stayAwake(appSettings.stayAwake)
-            } else if (session.state != null) {
-                session.unregister()
-                ScreenUtils.stayAwake(false)
-                gameBar.onGameLeave()
+            val app = info?.topActivity?.packageName ?: return
+            if (app == previousApp && isInGameMode) return
+            if (isGame(app)) {
+                Intent(GameBroadcastReceiver.GAME_START).apply {
+                    setPackage(packageName)
+                    putExtra(SessionService.EXTRA_PACKAGE_NAME, app)
+                    sendBroadcastAsUser(this, UserHandle.CURRENT)
+                }
+                isInGameMode = true
+            } else if (isInGameMode) {
+                Intent(GameBroadcastReceiver.GAME_STOP).apply {
+                    setPackage(packageName)
+                    sendBroadcastAsUser(this, UserHandle.CURRENT)
+                }
+
+                isInGameMode = false
             }
 
-            previousApp = currentApp
+            previousApp = app
         } catch (e: Exception) {
             Log.d(TAG, e.toString())
-        }
-    }
-
-    private fun applyGameModeConfig(app: String) {
-        val preferred = settings.userGames.firstOrNull { it.packageName == app }
-            ?.mode ?: GameModeUtils.defaultPreferredMode
-        GameModeUtils.activeGame = settings.userGames.firstOrNull { it.packageName == app }
-        scope.launch {
-            gameManager.getAvailableGameModes(app)
-                .takeIf { it.contains(preferred) }
-                ?.run { gameManager.setGameMode(app, preferred) }
         }
     }
 
