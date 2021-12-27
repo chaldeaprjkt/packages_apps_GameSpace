@@ -17,6 +17,7 @@ package io.chaldeaprjkt.gamespace.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.Preference
@@ -45,7 +46,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         settings = context?.let { SystemSettings(it) }
-        apps = findPreference(SystemSettings.KEY_GAME_LIST)
+        apps = findPreference(Settings.System.GAMESPACE_GAME_LIST)
 
         findPreference<Preference>(AppListPreferences.KEY_ADD_GAME)
             ?.setOnPreferenceClickListener {

@@ -45,27 +45,12 @@
             android:label="@string/app_selector_label" />
 
         <service
-            android:name=".gamebar.TaskListenerService"
-            android:exported="false"
-            android:process=":tasklistener" />
-
-        <service
             android:name=".gamebar.SessionService"
             android:exported="false" />
 
         <service
             android:name=".gamebar.GameBarService"
             android:exported="false" />
-
-        <receiver
-            android:name=".BootCompleteReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
 
         <receiver
             android:name=".gamebar.GameBroadcastReceiver"

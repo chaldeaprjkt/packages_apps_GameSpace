@@ -59,13 +59,13 @@ class SystemSettings(private val context: Context) {
 
     var userGames
         get() =
-            Settings.System.getString(resolver, KEY_GAME_LIST)
+            Settings.System.getString(resolver, Settings.System.GAMESPACE_GAME_LIST)
                 ?.split(";")
                 ?.toList()?.filter { it.isNotEmpty() }
                 ?.map { UserGame.fromSettings(it) } ?: emptyList()
         set(games) {
             Settings.System.putString(
-                resolver, KEY_GAME_LIST,
+                resolver, Settings.System.GAMESPACE_GAME_LIST,
                 if (games.isEmpty()) "" else
                     games.joinToString(";") { it.toString() }
             )
@@ -73,8 +73,4 @@ class SystemSettings(private val context: Context) {
         }
 
     private fun Boolean.toInt() = if (this) 1 else 0
-
-    companion object {
-        const val KEY_GAME_LIST = "gamespace_game_list"
-    }
 }

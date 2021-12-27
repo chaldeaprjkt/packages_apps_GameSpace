@@ -18,7 +18,6 @@ package io.chaldeaprjkt.gamespace.settings
 import com.android.settingslib.R as SettingsR
 import android.os.Bundle
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
-import io.chaldeaprjkt.gamespace.gamebar.TaskListenerService
 import io.chaldeaprjkt.gamespace.utils.assertStarterOrigin
 
 class SettingsActivity : CollapsingToolbarBaseActivity() {
@@ -31,7 +30,6 @@ class SettingsActivity : CollapsingToolbarBaseActivity() {
                 .beginTransaction()
                 .replace(SettingsR.id.content_frame, SettingsFragment())
                 .commit()
-            TaskListenerService.start(this)
         }
     }
 }
