@@ -94,14 +94,14 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
             apps.add(UserGame(packageName))
         }
         settings?.let { it.userGames = apps }
-        GameModeUtils.setupIntervention(packageName)
+        GameModeUtils.setIntervention(packageName)
         updateAppList()
     }
 
     private fun unregisterApp(preference: Preference) {
         apps.removeIf { it.packageName == preference.key }
         settings?.let { it.userGames = apps }
-        GameModeUtils.clearIntervention(preference.key)
+        GameModeUtils.setIntervention(preference.key, null)
         updateAppList()
     }
 

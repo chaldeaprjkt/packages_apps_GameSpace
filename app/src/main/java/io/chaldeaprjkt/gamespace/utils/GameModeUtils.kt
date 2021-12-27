@@ -45,21 +45,10 @@ object GameModeUtils {
         manager = null
     }
 
-    fun setupIntervention(packageName: String, modeData: List<GameConfig> = defaultModes) {
+    fun setIntervention(packageName: String, modeData: List<GameConfig>? = defaultModes) {
         DeviceConfig.setProperty(
-            DeviceConfig.NAMESPACE_GAME_OVERLAY, packageName,
-            modeData.asConfig(), false
+            DeviceConfig.NAMESPACE_GAME_OVERLAY, packageName, modeData?.asConfig(), false
         )
-    }
-
-    fun clearIntervention(packageName: String) {
-        // Since we have no api for removing DC, let's use shell for now
-        val cmd = "device_config delete ${DeviceConfig.NAMESPACE_GAME_OVERLAY} $packageName"
-        try {
-            Runtime.getRuntime().exec(cmd)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     fun setActiveGameMode(context: Context, mode: Int) {
