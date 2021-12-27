@@ -18,22 +18,45 @@ package io.chaldeaprjkt.gamespace.gamebar
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
+import android.os.UserHandle
+
 
 class GameBroadcastReceiver : BroadcastReceiver() {
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             GAME_START -> context.onGameStart(intent)
-            GAME_STOP -> context.onGameStop()
+            GAME_STOP -> context.onGameStop(intent)
         }
     }
 
     private fun Context.onGameStart(intent: Intent) {
+        handler.post { resendBroadcast(intent) }
         val app = intent.getStringExtra(SessionService.EXTRA_PACKAGE_NAME)
         SessionService.start(this, app)
     }
 
-    private fun Context.onGameStop() {
+    private fun Context.onGameStop(intent: Intent) {
+        handler.post { resendBroadcast(intent) }
         SessionService.stop(this)
+    }
+
+    private fun Context.resendBroadcast(prevIntent: Intent) {
+        val intent = (prevIntent.clone() as Intent).apply {
+            setPackage(null)
+            component = null
+        }
+        packageManager.queryBroadcastReceivers(intent, 0)
+            ?.mapNotNull { it.activityInfo?.packageName }
+            ?.filter { it != packageName }
+            ?.forEach {
+                (intent.clone() as Intent).apply {
+                    setPackage(it)
+                    sendBroadcastAsUser(this, UserHandle.ALL)
+                }
+            }
     }
 
     companion object {

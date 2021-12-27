@@ -15,12 +15,10 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="io.chaldeaprjkt.gamespace"
     android:sharedUserId="android.uid.system">
 
-    <permission android:name="io.chaldeaprjkt.gamespace.permission.MANAGE_GAME_MODE" />
-
-    <uses-permission android:name="io.chaldeaprjkt.gamespace.permission.MANAGE_GAME_MODE" />
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
     <uses-permission android:name="android.permission.MANAGE_GAME_MODE" />
@@ -72,7 +70,7 @@
         <receiver
             android:name=".gamebar.GameBroadcastReceiver"
             android:exported="true"
-            android:permission="io.chaldeaprjkt.gamespace.permission.MANAGE_GAME_MODE">
+            tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="io.chaldeaprjkt.gamespace.action.GAME_START" />
                 <action android:name="io.chaldeaprjkt.gamespace.action.GAME_STOP" />
