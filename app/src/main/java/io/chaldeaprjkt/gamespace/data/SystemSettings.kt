@@ -57,6 +57,20 @@ class SystemSettings(private val context: Context) {
             Settings.System.putInt(resolver, Settings.System.THREE_FINGER_GESTURE, it.toInt())
         }
 
+    var suppressFullscreenIntent
+        get() = Settings.System.getInt(
+            resolver,
+            Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT,
+            0
+        ) == 1
+        set(it) {
+            Settings.System.putInt(
+                resolver,
+                Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT,
+                it.toInt()
+            )
+        }
+
     var userGames
         get() =
             Settings.System.getString(resolver, Settings.System.GAMESPACE_GAME_LIST)

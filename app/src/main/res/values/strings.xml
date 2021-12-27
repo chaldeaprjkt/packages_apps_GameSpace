@@ -50,4 +50,7 @@
         <item>Normal</item>
     </string-array>
 
+    <string name="suppress_fullscreen_intent_title">Block fullscreen event</string>
+    <string name="suppress_fullscreen_intent_summary">Prevent fullscreen events like incoming calls from appearing while in-game</string>
+
 </resources>

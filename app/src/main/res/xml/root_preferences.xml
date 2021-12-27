@@ -30,6 +30,14 @@
             android:summary="%s"
             android:title="@string/ringer_mode_title" />
 
+        <!-- persistent:false because it'll be stored to Settings.System directly -->
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="gamespace_suppress_fullscreen_intent"
+            android:persistent="false"
+            android:summary="@string/suppress_fullscreen_intent_summary"
+            android:title="@string/suppress_fullscreen_intent_title" />
+
         <SwitchPreference
             android:key="gamespace_auto_brightness_disabled"
             android:summary="@string/auto_brightness_disabled_summary"

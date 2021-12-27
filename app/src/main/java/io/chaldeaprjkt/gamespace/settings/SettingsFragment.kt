@@ -22,13 +22,14 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreference
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.preferences.AppListPreferences
 import io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity
 
 
-class SettingsFragment : PreferenceFragmentCompat() {
+class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
     private var apps: AppListPreferences? = null
     private var settings: SystemSettings? = null
 
@@ -53,5 +54,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 selectorResult.launch(Intent(context, AppSelectorActivity::class.java))
                 return@setOnPreferenceClickListener true
             }
+
+        findPreference<SwitchPreference>(Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT)?.apply {
+            settings?.suppressFullscreenIntent?.let { isChecked = it }
+            onPreferenceChangeListener = this@SettingsFragment
+        }
+    }
+
+    override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
+        when (preference?.key) {
+            Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT -> {
+                settings?.suppressFullscreenIntent = newValue as Boolean
+                return true
+            }
+        }
+        return false
     }
 }
