@@ -15,7 +15,6 @@
  */
 package io.chaldeaprjkt.gamespace.gamebar
 
-import android.app.ActivityTaskManager
 import android.app.Service
 import android.content.Intent
 import android.content.res.Configuration
@@ -40,7 +39,6 @@ import androidx.core.view.updatePadding
 import com.android.systemui.screenrecord.IRecordingCallback
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.AppSettings
-import io.chaldeaprjkt.gamespace.utils.FrameRateUtils
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 import io.chaldeaprjkt.gamespace.utils.dp
 import io.chaldeaprjkt.gamespace.utils.registerDraggableTouchListener
@@ -59,7 +57,6 @@ class GameBarService : Service() {
     private val wm by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
     private val appSettings by lazy { AppSettings(applicationContext) }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
-    private val taskManager by lazy { ActivityTaskManager.getService() }
 
     private val barLayoutParam =
         WindowManager.LayoutParams(
@@ -125,16 +122,6 @@ class GameBarService : Service() {
             }
         }
 
-    private fun onFpsUpdate(data: Float) {
-        if (!::menuSwitcher.isInitialized) return
-        if (!appSettings.showFps && menuSwitcher.showFps) {
-            menuSwitcher.showFps = false
-            return
-        }
-
-        menuSwitcher.updateFpsValue(data)
-    }
-
     override fun onCreate() {
         super.onCreate()
         val frame = FrameLayout(this)
@@ -191,7 +178,6 @@ class GameBarService : Service() {
     }
 
     private fun onActionStop() {
-        FrameRateUtils.unbind()
         if (::rootPanelView.isInitialized && rootPanelView.isAttachedToWindow) {
             wm.removeViewImmediate(rootPanelView)
         }
@@ -221,11 +207,6 @@ class GameBarService : Service() {
         panelButton()
         screenshotButton()
         recorderButton()
-
-        val task = taskManager.focusedRootTaskInfo ?: return
-        FrameRateUtils.bind(task) {
-            scope.launch(Dispatchers.Main) { onFpsUpdate(it) }
-        }
     }
 
     private fun onBarDragged(dragged: Boolean) {
@@ -340,7 +321,6 @@ class GameBarService : Service() {
                 appSettings.y = barLayoutParam.y
             }
         )
-        menuSwitcher.showFps = appSettings.showFps
     }
 
     private fun panelButton() {
