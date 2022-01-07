@@ -18,13 +18,16 @@ package io.chaldeaprjkt.gamespace.data
 import android.content.Context
 import android.media.AudioManager
 import com.google.gson.Gson
+import javax.inject.Inject
 
-class GameSession(private val context: Context) {
+class GameSession @Inject constructor(
+    private val context: Context,
+    private val appSettings: AppSettings,
+    private val systemSettings: SystemSettings,
+    private val gson: Gson,
+) {
 
     private val db by lazy { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
-    private val appSettings by lazy { AppSettings(context) }
-    private val systemSettings by lazy { SystemSettings(context) }
-    private val gson by lazy { Gson() }
     private val audioManager by lazy { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
 
     var state

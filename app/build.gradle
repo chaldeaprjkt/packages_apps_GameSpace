@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -60,13 +61,21 @@ def androidPath = "${rootDir}/../../../"
 def frameworkClassesJar = "${androidPath}/out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/classes.jar"
 
 dependencies {
+    kapt 'com.google.dagger:hilt-compiler:2.40.5'
+
     compileOnly files(frameworkClassesJar)
-    implementation project(path: ':SettingsLibParts')
+
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.dagger:hilt-android:2.40.5'
+    implementation project(path: ':SettingsLibParts')
+}
+
+kapt {
+    correctErrorTypes true
 }
 
 allprojects {

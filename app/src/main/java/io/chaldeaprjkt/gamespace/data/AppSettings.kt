@@ -21,8 +21,9 @@ import android.view.WindowManager
 import androidx.preference.PreferenceManager
 import io.chaldeaprjkt.gamespace.utils.dp
 import io.chaldeaprjkt.gamespace.utils.statusbarHeight
+import javax.inject.Inject
 
-class AppSettings(private val context: Context) {
+class AppSettings @Inject constructor(private val context: Context) {
 
     private val db by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
     private val wm by lazy { context.getSystemService(Service.WINDOW_SERVICE) as WindowManager }

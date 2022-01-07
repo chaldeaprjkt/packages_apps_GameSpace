@@ -37,6 +37,7 @@ import androidx.core.view.marginStart
 import androidx.core.view.updateMargins
 import androidx.core.view.updatePadding
 import com.android.systemui.screenrecord.IRecordingCallback
+import dagger.hilt.android.AndroidEntryPoint
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.AppSettings
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
@@ -49,13 +50,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
 
-class GameBarService : Service() {
+@AndroidEntryPoint(Service::class)
+class GameBarService : Hilt_GameBarService() {
+    @Inject
+    lateinit var appSettings: AppSettings
+
     private val scope = CoroutineScope(Job() + Dispatchers.Main)
     private val wm by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
-    private val appSettings by lazy { AppSettings(applicationContext) }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     private val barLayoutParam =

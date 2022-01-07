@@ -28,6 +28,7 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.os.UserHandle
 import android.util.Log
+import dagger.hilt.android.AndroidEntryPoint
 import io.chaldeaprjkt.gamespace.data.AppSettings
 import io.chaldeaprjkt.gamespace.data.GameSession
 import io.chaldeaprjkt.gamespace.data.SystemSettings
@@ -37,13 +38,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SessionService : Service() {
+@AndroidEntryPoint(Service::class)
+class SessionService : Hilt_SessionService() {
+    @Inject
+    lateinit var appSettings: AppSettings
+
+    @Inject
+    lateinit var settings: SystemSettings
+
+    @Inject
+    lateinit var session: GameSession
+
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
-    private val appSettings by lazy { AppSettings(applicationContext) }
-    private val settings by lazy { SystemSettings(applicationContext) }
-    private val session by lazy { GameSession(applicationContext) }
-
     private val screenReceiver by lazy {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {

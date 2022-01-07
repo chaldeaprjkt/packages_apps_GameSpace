@@ -18,8 +18,9 @@ package io.chaldeaprjkt.gamespace.data
 import android.content.Context
 import android.provider.Settings
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
+import javax.inject.Inject
 
-class SystemSettings(private val context: Context) {
+class SystemSettings @Inject constructor(private val context: Context) {
 
     private val resolver = context.contentResolver
 

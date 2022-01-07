@@ -23,15 +23,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
+import dagger.hilt.android.AndroidEntryPoint
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.preferences.AppListPreferences
 import io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity
+import javax.inject.Inject
 
+@AndroidEntryPoint(PreferenceFragmentCompat::class)
+class SettingsFragment : Hilt_SettingsFragment(), Preference.OnPreferenceChangeListener {
+    @Inject
+    lateinit var settings: SystemSettings
 
-class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
     private var apps: AppListPreferences? = null
-    private var settings: SystemSettings? = null
 
     private val selectorResult =
         registerForActivityResult(
@@ -46,7 +50,6 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        settings = context?.let { SystemSettings(it) }
         apps = findPreference(Settings.System.GAMESPACE_GAME_LIST)
 
         findPreference<Preference>(AppListPreferences.KEY_ADD_GAME)
@@ -56,7 +59,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             }
 
         findPreference<SwitchPreference>(Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT)?.apply {
-            settings?.suppressFullscreenIntent?.let { isChecked = it }
+            isChecked = settings.suppressFullscreenIntent
             onPreferenceChangeListener = this@SettingsFragment
         }
     }
@@ -64,7 +67,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
         when (preference?.key) {
             Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT -> {
-                settings?.suppressFullscreenIntent = newValue as Boolean
+                settings.suppressFullscreenIntent = newValue as Boolean
                 return true
             }
         }

@@ -17,15 +17,16 @@ package io.chaldeaprjkt.gamespace.preferences.appselector
 
 import android.os.Bundle
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
-import com.android.settingslib.R as SettingsR
+import dagger.hilt.android.AndroidEntryPoint
 
-class AppSelectorActivity : CollapsingToolbarBaseActivity() {
+@AndroidEntryPoint(CollapsingToolbarBaseActivity::class)
+class AppSelectorActivity : Hilt_AppSelectorActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(SettingsR.id.content_frame, AppSelectorFragment())
+                .replace(com.android.settingslib.R.id.content_frame, AppSelectorFragment())
                 .commit()
         }
     }

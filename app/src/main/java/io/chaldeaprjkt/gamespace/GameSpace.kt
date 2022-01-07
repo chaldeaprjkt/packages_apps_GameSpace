@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.chaldeaprjkt.gamespace.data
+package io.chaldeaprjkt.gamespace
 
-/**
- * data class for setting up the Game Mode API Intervention
- */
-data class GameConfig(val mode: Int, val downscaleFactor: Float) {
-    override fun toString(): String = "%.1f"
-        .format(downscaleFactor)
-        .let { "mode=$mode,downscaleFactor=$it" }
+import android.app.Application
 
-    companion object {
-        fun Iterable<GameConfig>.asConfig() = this.joinToString(":") { it.toString() }
-    }
-}
+import dagger.hilt.android.HiltAndroidApp
+
+@HiltAndroidApp(Application::class)
+class GameSpace : Hilt_GameSpace()

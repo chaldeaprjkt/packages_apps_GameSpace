@@ -20,23 +20,32 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
+import dagger.hilt.android.AndroidEntryPoint
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.preferences.AppListPreferences
-import com.android.settingslib.R as SettingsR
-import com.google.android.material.appbar.AppBarLayout
 import io.chaldeaprjkt.gamespace.preferences.appselector.adapter.AppsAdapter
+import javax.inject.Inject
 
-class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
+@AndroidEntryPoint(Fragment::class)
+class AppSelectorFragment : Hilt_AppSelectorFragment(), SearchView.OnQueryTextListener,
     MenuItem.OnActionExpandListener {
+    @Inject
+    lateinit var settings: SystemSettings
+
     private var appListView: RecyclerView? = null
-    private var settings: SystemSettings? = null
     private var appsAdapter: AppsAdapter? = null
     private var appBarLayout: AppBarLayout? = null
 
@@ -51,13 +60,12 @@ class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
         savedInstanceState: Bundle?
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        appBarLayout = activity?.findViewById(SettingsR.id.app_bar)
+        appBarLayout = activity?.findViewById(com.android.settingslib.R.id.app_bar)
         return inflater.inflate(R.layout.app_selector, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        settings = context?.let { SystemSettings(it) }
         view.findViewById<RecyclerView>(R.id.app_list)?.apply {
             setupAppListView(this)
         }
@@ -80,7 +88,7 @@ class AppSelectorFragment : Fragment(), SearchView.OnQueryTextListener,
             .filter {
                 it.packageName != context?.packageName &&
                         it.flags and ApplicationInfo.FLAG_SYSTEM == 0 &&
-                        settings?.userGames?.any { t -> t.packageName == it.packageName } == false
+                        !settings.userGames.any { t -> t.packageName == it.packageName }
             }
             .sortedBy { it.loadLabel(view.context.packageManager).toString().lowercase() }
 

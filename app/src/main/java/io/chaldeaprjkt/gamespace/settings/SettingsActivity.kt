@@ -15,12 +15,13 @@
  */
 package io.chaldeaprjkt.gamespace.settings
 
-import com.android.settingslib.R as SettingsR
 import android.os.Bundle
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
+import dagger.hilt.android.AndroidEntryPoint
 import io.chaldeaprjkt.gamespace.utils.assertStarterOrigin
 
-class SettingsActivity : CollapsingToolbarBaseActivity() {
+@AndroidEntryPoint(CollapsingToolbarBaseActivity::class)
+class SettingsActivity : Hilt_SettingsActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         assertStarterOrigin()
@@ -28,7 +29,7 @@ class SettingsActivity : CollapsingToolbarBaseActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
-                .replace(SettingsR.id.content_frame, SettingsFragment())
+                .replace(com.android.settingslib.R.id.content_frame, SettingsFragment())
                 .commit()
         }
     }

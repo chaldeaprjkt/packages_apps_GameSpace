@@ -25,7 +25,7 @@ import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.GameConfig
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.data.UserGame
-import io.chaldeaprjkt.gamespace.data.asConfig
+import io.chaldeaprjkt.gamespace.data.GameConfig.Companion.asConfig
 
 object GameModeUtils {
     const val defaultPreferredMode = GameManager.GAME_MODE_PERFORMANCE

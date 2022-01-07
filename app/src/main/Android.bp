@@ -25,10 +25,14 @@ android_app {
         "kotlin-stdlib",
         "kotlinx-coroutines-android",
         "gson-prebuilt-jar",
+        "hilt_android",
     ],
     kotlincflags: [
         "-Xuse-experimental=kotlin.Experimental",
         "-Xuse-experimental=kotlin.ExperimentalStdlibApi",
+    ],
+    plugins: [
+        "dagger2-compiler",
     ],
 
     required: ["privapp_whitelist_io.chaldeaprjkt.gamespace.xml"],

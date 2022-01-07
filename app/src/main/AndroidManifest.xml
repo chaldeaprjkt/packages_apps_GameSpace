@@ -30,6 +30,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
+        android:name=".GameSpace"
         android:label="@string/settings_title"
         android:supportsRtl="true"
         android:theme="@style/GameSpaceTheme">
