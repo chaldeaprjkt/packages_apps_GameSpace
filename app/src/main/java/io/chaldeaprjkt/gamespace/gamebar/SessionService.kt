@@ -67,11 +67,13 @@ class SessionService : Hilt_SessionService() {
     }
     private val gameBarConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            isBarConnected = true
             gameBar = (service as GameBarService.GameBarBinder).getService()
             onGameBarReady()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
+            isBarConnected = false
             session.unregister()
         }
     }
@@ -80,6 +82,7 @@ class SessionService : Hilt_SessionService() {
     private var previousApp = UNKNOWN_APP
     private lateinit var gameBar: GameBarService
     private lateinit var gameManager: GameManager
+    private var isBarConnected = false
 
     @SuppressLint("WrongConstant")
     override fun onCreate() {
@@ -117,10 +120,13 @@ class SessionService : Hilt_SessionService() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        if (isBarConnected) {
+            unbindService(gameBarConnection)
+        }
+
         // restore settings in case the listener got destroyed gracefully
         session.unregister()
         GameModeUtils.unbind()
-        unbindService(gameBarConnection)
         ScreenUtils.unbind(this)
         unregisterReceiver(screenReceiver)
         isRunning = false
@@ -128,6 +134,11 @@ class SessionService : Hilt_SessionService() {
     }
 
     private fun onGameBarReady() {
+        if (!isBarConnected) {
+            onGameStart()
+            return
+        }
+
         try {
             if (session.state != null) {
                 session.unregister()
@@ -148,7 +159,9 @@ class SessionService : Hilt_SessionService() {
                 session.unregister()
             }
             ScreenUtils.stayAwake(false)
-            gameBar.onGameLeave()
+            if (isBarConnected) {
+                gameBar.onGameLeave()
+            }
             stopSelf()
         } catch (e: Exception) {
             Log.d(TAG, e.toString())
