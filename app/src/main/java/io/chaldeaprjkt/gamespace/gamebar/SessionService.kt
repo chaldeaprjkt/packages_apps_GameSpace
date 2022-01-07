@@ -16,6 +16,7 @@
 package io.chaldeaprjkt.gamespace.gamebar
 
 import android.annotation.SuppressLint
+import android.app.ActivityTaskManager
 import android.app.GameManager
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -104,6 +105,10 @@ class SessionService : Hilt_SessionService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         commandIntent = intent
         super.onStartCommand(intent, flags, startId)
+        if (intent == null && flags == 0 && startId > 1) {
+            return tryStartFromDeath()
+        }
+
         when (intent?.action) {
             START -> onGameStart()
             STOP -> onGameStop()
@@ -166,6 +171,21 @@ class SessionService : Hilt_SessionService() {
         } catch (e: Exception) {
             Log.d(TAG, e.toString())
         }
+    }
+
+    private fun tryStartFromDeath(): Int {
+        val game = ActivityTaskManager.getService()
+            ?.focusedRootTaskInfo
+            ?.topActivity?.packageName
+            ?: return START_NOT_STICKY
+
+        if (!settings.userGames.any { it.packageName == game }) {
+            return START_NOT_STICKY
+        }
+
+        commandIntent = Intent(START).putExtra(EXTRA_PACKAGE_NAME, game)
+        onGameStart()
+        return START_STICKY
     }
 
     private fun applyGameModeConfig(app: String) {
