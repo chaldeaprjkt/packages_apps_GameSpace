@@ -37,7 +37,7 @@ class GameModeTile @JvmOverloads constructor(
             field = value
             summary?.text = GameModeUtils.describeMode(context, value)
             isSelected = value != GameManager.GAME_MODE_STANDARD
-            GameModeUtils.setActiveGameMode(context, value)
+            GameModeUtils.setActiveGameMode(systemSettings, value)
         }
 
     override fun onAttachedToWindow() {

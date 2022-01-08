@@ -51,20 +51,15 @@ object GameModeUtils {
         )
     }
 
-    fun setActiveGameMode(context: Context, mode: Int) {
+    fun setActiveGameMode(systemSettings: SystemSettings, mode: Int) {
         val packageName = activeGame?.packageName ?: return
         manager?.setGameMode(packageName, mode)
         UserGame(packageName, mode).let {
-            updatePreferredSettings(context, it)
+            systemSettings.userGames =
+                systemSettings.userGames.filter { x -> x.packageName != it.packageName }
+                    .toMutableList()
+                    .apply { add(it) }
             activeGame = it
-        }
-    }
-
-    private fun updatePreferredSettings(context: Context, game: UserGame) {
-        SystemSettings(context).let { sys ->
-            sys.userGames = sys.userGames.filter { it.packageName != game.packageName }
-                .toMutableList()
-                .apply { add(game) }
         }
     }
 
