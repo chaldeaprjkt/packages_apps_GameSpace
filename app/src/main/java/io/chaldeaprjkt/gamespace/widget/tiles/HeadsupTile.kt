@@ -19,17 +19,14 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import io.chaldeaprjkt.gamespace.R
-import io.chaldeaprjkt.gamespace.data.SystemSettings
 
 class HeadsupTile @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : BaseTile(context, attrs) {
 
-    private val settings by lazy { SystemSettings(context) }
-
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        headsUpEnabled = settings.headsUp
+        headsUpEnabled = systemSettings.headsUp
         title?.text = context.getString(R.string.heads_up_title)
         icon?.setImageResource(R.drawable.ic_action_heads_up)
     }
@@ -42,7 +39,7 @@ class HeadsupTile @JvmOverloads constructor(
             } else {
                 summary?.text = context.getString(R.string.state_disabled)
             }
-            settings.headsUp = value
+            systemSettings.headsUp = value
             isSelected = value
         }
 

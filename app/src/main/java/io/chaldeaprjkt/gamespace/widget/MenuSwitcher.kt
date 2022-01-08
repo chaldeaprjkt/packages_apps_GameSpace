@@ -8,8 +8,9 @@ import android.view.SurfaceControlFpsListener
 import android.widget.LinearLayout
 import android.widget.TextView
 import io.chaldeaprjkt.gamespace.R
-import io.chaldeaprjkt.gamespace.data.AppSettings
+import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
 import io.chaldeaprjkt.gamespace.utils.dp
+import io.chaldeaprjkt.gamespace.utils.entryPointOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,7 +26,7 @@ class MenuSwitcher @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.bar_menu_switcher, this, true)
     }
 
-    private val appSettings by lazy { AppSettings(context) }
+    private val appSettings by lazy { context.entryPointOf<ServiceViewEntryPoint>().appSettings() }
     private val scope = CoroutineScope(Job() + Dispatchers.Main)
     private val taskManager by lazy { ActivityTaskManager.getService() }
 

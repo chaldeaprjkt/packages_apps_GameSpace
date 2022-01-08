@@ -21,6 +21,7 @@ import android.content.res.Resources.getSystem
 import android.graphics.Point
 import android.view.View
 import android.view.WindowManager
+import dagger.hilt.EntryPoints
 import io.chaldeaprjkt.gamespace.gamebar.DraggableTouchListener
 
 fun View.registerDraggableTouchListener(
@@ -44,3 +45,6 @@ fun WindowManager.isPortrait() =
 fun Activity.assertStarterOrigin() =
     intent?.getStringExtra("referer")?.takeIf { it.isNotEmpty() }
         ?: throw SecurityException("failed to assert starter origin")
+
+inline fun <reified T : Any> Context.entryPointOf(): T =
+    EntryPoints.get(applicationContext, T::class.java)

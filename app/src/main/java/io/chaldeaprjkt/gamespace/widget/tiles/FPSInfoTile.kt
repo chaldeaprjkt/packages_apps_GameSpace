@@ -19,13 +19,11 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import io.chaldeaprjkt.gamespace.R
-import io.chaldeaprjkt.gamespace.data.AppSettings
 
 class FPSInfoTile @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : BaseTile(context, attrs) {
 
-    private val appSettings by lazy { AppSettings(context) }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()

@@ -17,13 +17,14 @@ package io.chaldeaprjkt.gamespace.widget.tiles
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import io.chaldeaprjkt.gamespace.R
+import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
+import io.chaldeaprjkt.gamespace.utils.entryPointOf
 
 
 abstract class BaseTile @JvmOverloads constructor(
@@ -34,6 +35,9 @@ abstract class BaseTile @JvmOverloads constructor(
         isFocusable = true
         prepareLayout()
     }
+
+    val appSettings by lazy { context.entryPointOf<ServiceViewEntryPoint>().appSettings() }
+    val systemSettings by lazy { context.entryPointOf<ServiceViewEntryPoint>().systemSettings() }
 
     val title: TextView?
         get() = findViewById(R.id.tile_title)
