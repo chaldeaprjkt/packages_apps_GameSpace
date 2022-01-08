@@ -27,21 +27,23 @@ import androidx.activity.result.ActivityResult
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import io.chaldeaprjkt.gamespace.R
-import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.data.UserGame
 import io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
+import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
+import io.chaldeaprjkt.gamespace.utils.entryPointOf
 
 
-class AppListPreferences(context: Context?, attrs: AttributeSet?) :
+class AppListPreferences @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
     PreferenceCategory(context, attrs), Preference.OnPreferenceClickListener {
 
     private val apps = mutableListOf<UserGame>()
-    private var settings: SystemSettings? = null
+    private val systemSettings by lazy {
+        context.entryPointOf<ServiceViewEntryPoint>().systemSettings()
+    }
 
     init {
         isOrderingAsAdded = false
-        settings = context?.let { SystemSettings(it) }
     }
 
     private val makeAddPref by lazy {
@@ -62,8 +64,8 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
 
     private fun updateAppList() {
         apps.clear()
-        if (!settings?.userGames.isNullOrEmpty()) {
-            settings?.let { apps.addAll(it.userGames) }
+        if (!systemSettings.userGames.isNullOrEmpty()) {
+            apps.addAll(systemSettings.userGames)
         }
         removeAll()
         addPreference(makeAddPref)
@@ -93,14 +95,14 @@ class AppListPreferences(context: Context?, attrs: AttributeSet?) :
         if (!apps.any { it.packageName == packageName }) {
             apps.add(UserGame(packageName))
         }
-        settings?.let { it.userGames = apps }
+        systemSettings.userGames = apps
         GameModeUtils.setIntervention(packageName)
         updateAppList()
     }
 
     private fun unregisterApp(preference: Preference) {
         apps.removeIf { it.packageName == preference.key }
-        settings?.let { it.userGames = apps }
+        systemSettings.userGames = apps
         GameModeUtils.setIntervention(preference.key, null)
         updateAppList()
     }
