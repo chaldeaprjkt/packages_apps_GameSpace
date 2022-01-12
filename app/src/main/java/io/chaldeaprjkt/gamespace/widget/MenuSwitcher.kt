@@ -65,7 +65,7 @@ class MenuSwitcher @JvmOverloads constructor(
 
     private fun onFrameUpdated(newValue: Float) = scope.launch {
         DecimalFormat("#").apply {
-            roundingMode = RoundingMode.FLOOR
+            roundingMode = RoundingMode.HALF_EVEN
             content?.text = this.format(newValue)
         }
     }
