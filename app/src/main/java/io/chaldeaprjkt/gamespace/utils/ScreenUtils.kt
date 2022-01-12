@@ -29,13 +29,13 @@ import android.os.UserHandle
 import android.view.WindowManager
 import com.android.internal.util.ScreenshotHelper
 import com.android.systemui.screenrecord.IRemoteRecording
-import java.util.function.Consumer
+import javax.inject.Inject
 import kotlin.system.exitProcess
 
 /**
  * utilities for interacting with system screenshot and recorder service
  */
-object ScreenUtils {
+class ScreenUtils @Inject constructor(private val context: Context) {
 
     private var isRecorderBound = false
     private var remoteRecording: IRemoteRecording? = null
@@ -57,7 +57,7 @@ object ScreenUtils {
 
     val recorder: IRemoteRecording? get() = remoteRecording
 
-    fun bind(context: Context) {
+    fun bind() {
         isRecorderBound = context.bindServiceAsUser(Intent().apply {
             component = ComponentName(
                 "com.android.systemui",
@@ -72,7 +72,7 @@ object ScreenUtils {
             .newWakeLock(PowerManager.FULL_WAKE_LOCK, "GameSpace:ScreenUtils")
     }
 
-    fun unbind(context: Context) {
+    fun unbind() {
         wakelock?.takeIf { it.isHeld }?.release()
         if (isRecorderBound) {
             context.unbindService(recorderConnection)
@@ -80,22 +80,23 @@ object ScreenUtils {
         remoteRecording = null
     }
 
-    fun takeScreenshot(context: Context, onComplete: ((Uri?) -> Unit)? = null) {
+    fun takeScreenshot(onComplete: ((Uri?) -> Unit)? = null) {
         val handler = Handler(Looper.getMainLooper())
         ScreenshotHelper(context).takeScreenshot(
             WindowManager.TAKE_SCREENSHOT_FULLSCREEN, true, true,
-            WindowManager.ScreenshotSource.SCREENSHOT_GLOBAL_ACTIONS, handler, Consumer {
-                handler.post { onComplete?.invoke(it) }
-            }
-        )
+            WindowManager.ScreenshotSource.SCREENSHOT_GLOBAL_ACTIONS, handler
+        ) { handler.post { onComplete?.invoke(it) } }
     }
 
-    @SuppressLint("WakelockTimeout")
-    fun stayAwake(enable: Boolean) {
-        if (enable) {
-            wakelock?.takeIf { !it.isHeld }?.acquire()
-        } else {
-            wakelock?.takeIf { it.isHeld }?.release()
+    var stayAwake = false
+        get() = wakelock?.isHeld ?: false
+        @SuppressLint("WakelockTimeout")
+        set(enable) {
+            field = enable
+            if (enable) {
+                wakelock?.takeIf { !it.isHeld }?.acquire()
+            } else {
+                wakelock?.takeIf { it.isHeld }?.release()
+            }
         }
-    }
 }

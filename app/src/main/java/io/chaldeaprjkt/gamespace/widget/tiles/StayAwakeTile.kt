@@ -19,11 +19,14 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import io.chaldeaprjkt.gamespace.R
-import io.chaldeaprjkt.gamespace.utils.ScreenUtils
+import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
+import io.chaldeaprjkt.gamespace.utils.entryPointOf
 
 class StayAwakeTile @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : BaseTile(context, attrs) {
+
+    private val screenUtils by lazy { context.entryPointOf<ServiceViewEntryPoint>().screenUtils() }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -42,7 +45,7 @@ class StayAwakeTile @JvmOverloads constructor(
             }
             appSettings.stayAwake = value
             isSelected = value
-            ScreenUtils.stayAwake(value)
+            screenUtils.stayAwake = value
         }
 
     override fun onClick(v: View?) {

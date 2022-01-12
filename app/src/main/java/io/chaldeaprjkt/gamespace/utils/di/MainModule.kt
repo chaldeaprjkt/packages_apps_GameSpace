@@ -25,6 +25,8 @@ import dagger.hilt.components.SingletonComponent
 import io.chaldeaprjkt.gamespace.data.AppSettings
 import io.chaldeaprjkt.gamespace.data.GameSession
 import io.chaldeaprjkt.gamespace.data.SystemSettings
+import io.chaldeaprjkt.gamespace.utils.GameModeUtils
+import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 import javax.inject.Singleton
 
 
@@ -36,11 +38,20 @@ object MainModule {
 
     @Provides
     @Singleton
+    fun provideScreenUtils(@ApplicationContext context: Context) = ScreenUtils(context)
+
+    @Provides
+    @Singleton
+    fun provideGameModeUtils(@ApplicationContext context: Context) = GameModeUtils(context)
+
+    @Provides
+    @Singleton
     fun provideAppSettings(@ApplicationContext context: Context) = AppSettings(context)
 
     @Provides
     @Singleton
-    fun provideSystemSettings(@ApplicationContext context: Context) = SystemSettings(context)
+    fun provideSystemSettings(@ApplicationContext context: Context, gameModeUtils: GameModeUtils) =
+        SystemSettings(context, gameModeUtils)
 
     @Provides
     @Singleton

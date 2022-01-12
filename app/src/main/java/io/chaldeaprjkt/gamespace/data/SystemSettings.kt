@@ -20,7 +20,10 @@ import android.provider.Settings
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 import javax.inject.Inject
 
-class SystemSettings @Inject constructor(private val context: Context) {
+class SystemSettings @Inject constructor(
+    context: Context,
+    private val gameModeUtils: GameModeUtils
+) {
 
     private val resolver = context.contentResolver
 
@@ -84,7 +87,7 @@ class SystemSettings @Inject constructor(private val context: Context) {
                 if (games.isEmpty()) "" else
                     games.joinToString(";") { it.toString() }
             )
-            GameModeUtils.setupBatteryMode(context, games.isNotEmpty())
+            gameModeUtils.setupBatteryMode(games.isNotEmpty())
         }
 
     private fun Boolean.toInt() = if (this) 1 else 0

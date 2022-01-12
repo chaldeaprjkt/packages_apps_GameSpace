@@ -26,9 +26,9 @@ import io.chaldeaprjkt.gamespace.data.GameConfig
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.data.UserGame
 import io.chaldeaprjkt.gamespace.data.GameConfig.Companion.asConfig
+import javax.inject.Inject
 
-object GameModeUtils {
-    const val defaultPreferredMode = GameManager.GAME_MODE_PERFORMANCE
+class GameModeUtils @Inject constructor(private val context: Context) {
 
     private val defaultModes = listOf(
         GameConfig(GameManager.GAME_MODE_PERFORMANCE, downscaleFactor = .7f),
@@ -63,7 +63,7 @@ object GameModeUtils {
         }
     }
 
-    fun setupBatteryMode(context: Context, enable: Boolean) {
+    fun setupBatteryMode(enable: Boolean) {
         val svc = IDeviceIdleController.Stub.asInterface(
             ServiceManager.getService(Context.DEVICE_IDLE_CONTROLLER)
         )
@@ -79,7 +79,9 @@ object GameModeUtils {
         }
     }
 
-    fun describeMode(context: Context, mode: Int) =
-        context.resources.getStringArray(R.array.game_mode_names)[mode] ?: "Unsupported"
-
+    companion object {
+        const val defaultPreferredMode = GameManager.GAME_MODE_STANDARD
+        fun Context.describeGameMode(mode: Int) =
+            resources.getStringArray(R.array.game_mode_names)[mode] ?: "Unsupported"
+    }
 }

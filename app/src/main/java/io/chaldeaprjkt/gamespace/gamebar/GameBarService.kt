@@ -59,6 +59,9 @@ class GameBarService : Hilt_GameBarService() {
     @Inject
     lateinit var appSettings: AppSettings
 
+    @Inject
+    lateinit var screenUtils: ScreenUtils
+
     private val scope = CoroutineScope(Job() + Dispatchers.Main)
     private val wm by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
@@ -299,7 +302,7 @@ class GameBarService : Hilt_GameBarService() {
         updateLayout { it.alpha = 0f }
         handler.postDelayed({
             try {
-                ScreenUtils.takeScreenshot(this) { afterShot() }
+                screenUtils.takeScreenshot { afterShot() }
             } catch (e: Exception) {
                 e.printStackTrace()
                 afterShot()
@@ -344,7 +347,7 @@ class GameBarService : Hilt_GameBarService() {
 
     private fun recorderButton() {
         val actionRecorder = rootBarView.findViewById<ImageButton>(R.id.action_record)
-        val recorder = ScreenUtils.recorder ?: let { actionRecorder.isVisible = false; return }
+        val recorder = screenUtils.recorder ?: let { actionRecorder.isVisible = false; return }
         recorder.addRecordingCallback(object : IRecordingCallback.Stub() {
             override fun onRecordingStart() {
                 handler.post {

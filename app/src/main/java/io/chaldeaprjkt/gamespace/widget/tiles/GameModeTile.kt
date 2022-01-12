@@ -20,11 +20,17 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import io.chaldeaprjkt.gamespace.R
-import io.chaldeaprjkt.gamespace.utils.GameModeUtils
+import io.chaldeaprjkt.gamespace.utils.GameModeUtils.Companion.describeGameMode
+import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
+import io.chaldeaprjkt.gamespace.utils.entryPointOf
 
 class GameModeTile @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : BaseTile(context, attrs) {
+
+    private val gameModeUtils by lazy {
+        context.entryPointOf<ServiceViewEntryPoint>().gameModeUtils()
+    }
 
     private val modes = listOf(
         GameManager.GAME_MODE_STANDARD,
@@ -35,15 +41,15 @@ class GameModeTile @JvmOverloads constructor(
     private var activeMode = GameManager.GAME_MODE_STANDARD
         set(value) {
             field = value
-            summary?.text = GameModeUtils.describeMode(context, value)
+            summary?.text = context.describeGameMode(value)
             isSelected = value != GameManager.GAME_MODE_STANDARD
-            GameModeUtils.setActiveGameMode(systemSettings, value)
+            gameModeUtils.setActiveGameMode(systemSettings, value)
         }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         title?.text = context.getString(R.string.game_mode_title)
-        activeMode = GameModeUtils.activeGame?.mode ?: GameManager.GAME_MODE_STANDARD
+        activeMode = gameModeUtils.activeGame?.mode ?: GameManager.GAME_MODE_STANDARD
         icon?.setImageResource(R.drawable.ic_speed)
     }
 

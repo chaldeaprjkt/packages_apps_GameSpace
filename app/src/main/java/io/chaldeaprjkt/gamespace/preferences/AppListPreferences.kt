@@ -29,7 +29,7 @@ import androidx.preference.PreferenceCategory
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.UserGame
 import io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity
-import io.chaldeaprjkt.gamespace.utils.GameModeUtils
+import io.chaldeaprjkt.gamespace.utils.GameModeUtils.Companion.describeGameMode
 import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
 import io.chaldeaprjkt.gamespace.utils.entryPointOf
 
@@ -40,6 +40,10 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
     private val apps = mutableListOf<UserGame>()
     private val systemSettings by lazy {
         context.entryPointOf<ServiceViewEntryPoint>().systemSettings()
+    }
+
+    private val gameModeUtils by lazy {
+        context.entryPointOf<ServiceViewEntryPoint>().gameModeUtils()
     }
 
     init {
@@ -87,7 +91,7 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
 
     private fun describeMode(mode: Int): String {
         val title = context.getString(R.string.game_mode_title)
-        val desc = GameModeUtils.describeMode(context, mode)
+        val desc = context.describeGameMode(mode)
         return "$title: $desc"
     }
 
@@ -96,14 +100,14 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
             apps.add(UserGame(packageName))
         }
         systemSettings.userGames = apps
-        GameModeUtils.setIntervention(packageName)
+        gameModeUtils.setIntervention(packageName)
         updateAppList()
     }
 
     private fun unregisterApp(preference: Preference) {
         apps.removeIf { it.packageName == preference.key }
         systemSettings.userGames = apps
-        GameModeUtils.setIntervention(preference.key, null)
+        gameModeUtils.setIntervention(preference.key, null)
         updateAppList()
     }
 

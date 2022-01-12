@@ -30,7 +30,7 @@ class GameSession @Inject constructor(
     private val db by lazy { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
     private val audioManager by lazy { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
 
-    var state
+    private var state
         get() = db.getString(KEY_SAVED_SESSION, "")
             .takeIf { !it.isNullOrEmpty() }
             ?.let {
@@ -40,7 +40,7 @@ class GameSession @Inject constructor(
                     null
                 }
             }
-        private set(value) = db.edit()
+        set(value) = db.edit()
             .putString(KEY_SAVED_SESSION, value?.let {
                 try {
                     gson.toJson(value)

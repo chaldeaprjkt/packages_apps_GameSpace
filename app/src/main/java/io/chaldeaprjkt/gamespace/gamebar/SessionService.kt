@@ -50,6 +50,12 @@ class SessionService : Hilt_SessionService() {
     @Inject
     lateinit var session: GameSession
 
+    @Inject
+    lateinit var screenUtils: ScreenUtils
+
+    @Inject
+    lateinit var gameModeUtils: GameModeUtils
+
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     private val gameBarConnection = object : ServiceConnection {
@@ -72,15 +78,15 @@ class SessionService : Hilt_SessionService() {
 
     @SuppressLint("WrongConstant")
     override fun onCreate() {
-        isRunning = true
+        super.onCreate()
         try {
-            ScreenUtils.bind(this)
+            screenUtils.bind()
         } catch (e: RemoteException) {
             Log.d(TAG, e.toString())
         }
         gameManager = getSystemService(Context.GAME_SERVICE) as GameManager
-        GameModeUtils.bind(gameManager)
-        super.onCreate()
+        gameModeUtils.bind(gameManager)
+        isRunning = true
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -111,8 +117,8 @@ class SessionService : Hilt_SessionService() {
             unbindService(gameBarConnection)
         }
         session.unregister()
-        GameModeUtils.unbind()
-        ScreenUtils.unbind(this)
+        gameModeUtils.unbind()
+        screenUtils.unbind()
         isRunning = false
         super.onDestroy()
     }
@@ -133,7 +139,7 @@ class SessionService : Hilt_SessionService() {
             session.register(app)
             applyGameModeConfig(app)
             gameBar.onGameStart()
-            ScreenUtils.stayAwake(appSettings.stayAwake)
+            screenUtils.stayAwake = appSettings.stayAwake
         } catch (e: Exception) {
             Log.d(TAG, e.toString())
         }
@@ -157,7 +163,7 @@ class SessionService : Hilt_SessionService() {
     private fun applyGameModeConfig(app: String) {
         val preferred = settings.userGames.firstOrNull { it.packageName == app }
             ?.mode ?: GameModeUtils.defaultPreferredMode
-        GameModeUtils.activeGame = settings.userGames.firstOrNull { it.packageName == app }
+        gameModeUtils.activeGame = settings.userGames.firstOrNull { it.packageName == app }
         scope.launch {
             gameManager.getAvailableGameModes(app)
                 .takeIf { it.contains(preferred) }
