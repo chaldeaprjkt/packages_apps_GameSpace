@@ -19,11 +19,9 @@ import android.annotation.SuppressLint
 import android.app.ActivityTaskManager
 import android.app.GameManager
 import android.app.Service
-import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.RemoteException
@@ -53,19 +51,7 @@ class SessionService : Hilt_SessionService() {
     lateinit var session: GameSession
 
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
-    private val screenReceiver by lazy {
-        object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                previousApp = UNKNOWN_APP
-                when (intent?.action) {
-                    Intent.ACTION_SCREEN_OFF -> {
-                        // release it when user turn off the screen using power button
-                        ScreenUtils.stayAwake(false)
-                    }
-                }
-            }
-        }
-    }
+
     private val gameBarConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             isBarConnected = true
@@ -75,12 +61,11 @@ class SessionService : Hilt_SessionService() {
 
         override fun onServiceDisconnected(name: ComponentName?) {
             isBarConnected = false
-            session.unregister()
+            stopSelf()
         }
     }
 
-    private var commandIntent: Intent? = null
-    private var previousApp = UNKNOWN_APP
+    private lateinit var commandIntent: Intent
     private lateinit var gameBar: GameBarService
     private lateinit var gameManager: GameManager
     private var isBarConnected = false
@@ -93,30 +78,26 @@ class SessionService : Hilt_SessionService() {
         } catch (e: RemoteException) {
             Log.d(TAG, e.toString())
         }
-        registerReceiver(screenReceiver, IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
-            addAction(Intent.ACTION_SCREEN_ON)
-        })
         gameManager = getSystemService(Context.GAME_SERVICE) as GameManager
         GameModeUtils.bind(gameManager)
         super.onCreate()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        commandIntent = intent
+        intent?.let { commandIntent = it }
         super.onStartCommand(intent, flags, startId)
         if (intent == null && flags == 0 && startId > 1) {
             return tryStartFromDeath()
         }
 
         when (intent?.action) {
-            START -> onGameStart()
-            STOP -> onGameStop()
+            START -> startGameBar()
+            STOP -> stopSelf()
         }
         return START_STICKY
     }
 
-    private fun onGameStart() {
+    private fun startGameBar() {
         Intent(this, GameBarService::class.java).apply {
             bindServiceAsUser(this, gameBarConnection, Context.BIND_AUTO_CREATE, UserHandle.CURRENT)
         }
@@ -126,48 +107,33 @@ class SessionService : Hilt_SessionService() {
 
     override fun onDestroy() {
         if (isBarConnected) {
+            gameBar.onGameLeave()
             unbindService(gameBarConnection)
         }
-
-        // restore settings in case the listener got destroyed gracefully
         session.unregister()
         GameModeUtils.unbind()
         ScreenUtils.unbind(this)
-        unregisterReceiver(screenReceiver)
         isRunning = false
         super.onDestroy()
     }
 
     private fun onGameBarReady() {
         if (!isBarConnected) {
-            onGameStart()
+            startGameBar()
             return
         }
 
         try {
-            if (session.state != null) {
-                session.unregister()
+            session.unregister()
+            if (!::commandIntent.isInitialized) {
+                // something is not right, bailing out
+                stopSelf()
             }
-            val app = commandIntent?.getStringExtra(EXTRA_PACKAGE_NAME) ?: return
+            val app = commandIntent.getStringExtra(EXTRA_PACKAGE_NAME)
             session.register(app)
             applyGameModeConfig(app)
             gameBar.onGameStart()
             ScreenUtils.stayAwake(appSettings.stayAwake)
-        } catch (e: Exception) {
-            Log.d(TAG, e.toString())
-        }
-    }
-
-    private fun onGameStop() {
-        try {
-            if (session.state != null) {
-                session.unregister()
-            }
-            ScreenUtils.stayAwake(false)
-            if (isBarConnected) {
-                gameBar.onGameLeave()
-            }
-            stopSelf()
         } catch (e: Exception) {
             Log.d(TAG, e.toString())
         }
@@ -184,7 +150,7 @@ class SessionService : Hilt_SessionService() {
         }
 
         commandIntent = Intent(START).putExtra(EXTRA_PACKAGE_NAME, game)
-        onGameStart()
+        startGameBar()
         return START_STICKY
     }
 
@@ -204,7 +170,6 @@ class SessionService : Hilt_SessionService() {
         const val START = "game_start"
         const val STOP = "game_stop"
         const val EXTRA_PACKAGE_NAME = "package_name"
-        const val UNKNOWN_APP = "unknown"
         var isRunning = false
             private set
 
