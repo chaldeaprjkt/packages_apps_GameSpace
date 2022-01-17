@@ -32,10 +32,6 @@ import javax.inject.Inject
 
 class GameModeUtils @Inject constructor(private val context: Context) {
 
-    private val defaultModes = listOf(
-        GameConfig(GameManager.GAME_MODE_PERFORMANCE, downscaleFactor = .7f),
-        GameConfig(GameManager.GAME_MODE_BATTERY, downscaleFactor = .8f)
-    )
     private var manager: GameManager? = null
     var activeGame: UserGame? = null
 
@@ -47,7 +43,7 @@ class GameModeUtils @Inject constructor(private val context: Context) {
         manager = null
     }
 
-    fun setIntervention(packageName: String, modeData: List<GameConfig>? = defaultModes) {
+    fun setIntervention(packageName: String, modeData: List<GameConfig>? = null) {
         DeviceConfig.setProperty(
             DeviceConfig.NAMESPACE_GAME_OVERLAY, packageName, modeData?.asConfig(), false
         )
@@ -85,8 +81,20 @@ class GameModeUtils @Inject constructor(private val context: Context) {
         }
     }
 
+    fun findAnglePackage() = context.packageManager.queryIntentActivities(
+        Intent(ACTION_ANGLE_FOR_ANDROID),
+        PackageManager.MATCH_SYSTEM_ONLY
+    ).firstOrNull()?.activityInfo
+
+    fun isAngleUsed(packageName: String?) = packageName?.let {
+        DeviceConfig.getString(DeviceConfig.NAMESPACE_GAME_OVERLAY, it, null)
+            ?.contains("useAngle=true")
+    } ?: false
+
     companion object {
         const val defaultPreferredMode = GameManager.GAME_MODE_STANDARD
+        const val ACTION_ANGLE_FOR_ANDROID = "android.app.action.ANGLE_FOR_ANDROID"
+
         fun Context.describeGameMode(mode: Int) =
             resources.getStringArray(R.array.game_mode_names)[mode] ?: "Unsupported"
     }

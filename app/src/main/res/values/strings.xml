@@ -61,6 +61,10 @@
         <item>Battery</item>
     </string-array>
 
+    <string name="per_app_angle_title">Use ANGLE (experimental)</string>
+    <string name="per_app_angle_summary">Using ANGLE renderer instead of native GLES drivers.\nWARNING!! May breaks game graphics, use with caution!</string>
+    <string name="cant_find_angle_pkg">ANGLE is not available on your system</string>
+
     <string name="per_app_unregister">Remove %1$s from library</string>
 
 </resources>

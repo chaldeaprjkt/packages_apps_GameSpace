@@ -24,6 +24,7 @@ import androidx.activity.result.ActivityResult
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import io.chaldeaprjkt.gamespace.R
+import io.chaldeaprjkt.gamespace.data.GameConfig
 import io.chaldeaprjkt.gamespace.data.UserGame
 import io.chaldeaprjkt.gamespace.settings.PerAppSettingsFragment
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils.Companion.describeGameMode
@@ -94,7 +95,7 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
             apps.add(UserGame(packageName))
         }
         systemSettings.userGames = apps
-        gameModeUtils.setIntervention(packageName)
+        gameModeUtils.setIntervention(packageName, GameConfig.ModeBuilder.build())
         updateAppList()
     }
 

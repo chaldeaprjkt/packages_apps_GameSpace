@@ -30,6 +30,12 @@
         android:summary="%s"
         android:title="@string/per_app_mode_title" />
 
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="per_app_use_angle"
+        android:summary="@string/per_app_angle_summary"
+        android:title="@string/per_app_angle_title" />
+
     <Preference
         android:icon="@drawable/ic_remove"
         android:key="per_app_unregister"
