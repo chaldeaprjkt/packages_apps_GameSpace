@@ -20,4 +20,10 @@
         <item>1</item> <!-- VIBRATE -->
         <item>2</item> <!-- NORMAL  -->
     </string-array>
+
+    <string-array name="per_app_preferred_mode_values" translatable="false">
+        <item>1</item> <!-- Standard    -->
+        <item>2</item> <!-- Performance -->
+        <item>3</item> <!-- Battery     -->
+    </string-array>
 </resources>

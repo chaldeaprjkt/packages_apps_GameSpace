@@ -16,19 +16,16 @@
 package io.chaldeaprjkt.gamespace.preferences
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.util.AttributeSet
-import android.view.ContextThemeWrapper
 import androidx.activity.result.ActivityResult
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.UserGame
-import io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity
+import io.chaldeaprjkt.gamespace.settings.PerAppSettingsFragment
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils.Companion.describeGameMode
 import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
 import io.chaldeaprjkt.gamespace.utils.entryPointOf
@@ -45,6 +42,8 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
     private val gameModeUtils by lazy {
         context.entryPointOf<ServiceViewEntryPoint>().gameModeUtils()
     }
+
+    private lateinit var registeredAppClickAction: (String) -> Unit
 
     init {
         isOrderingAsAdded = false
@@ -66,7 +65,7 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
         null
     }
 
-    private fun updateAppList() {
+    fun updateAppList() {
         apps.clear()
         if (!systemSettings.userGames.isNullOrEmpty()) {
             apps.addAll(systemSettings.userGames)
@@ -79,20 +78,15 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
                 Preference(context).apply {
                     key = it.packageName
                     title = info?.loadLabel(context.packageManager)
-                    summary = describeMode(it.mode)
+                    summary = context.describeGameMode(it.mode)
                     icon = info?.loadIcon(context.packageManager)
+                    layoutResource = R.layout.library_item
                     isPersistent = false
                     onPreferenceClickListener = this@AppListPreferences
                 }
             }
             .sortedBy { it.title.toString().lowercase() }
             .forEach(::addPreference)
-    }
-
-    private fun describeMode(mode: Int): String {
-        val title = context.getString(R.string.game_mode_title)
-        val desc = context.describeGameMode(mode)
-        return "$title: $desc"
     }
 
     private fun registerApp(packageName: String) {
@@ -104,10 +98,10 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
         updateAppList()
     }
 
-    private fun unregisterApp(preference: Preference) {
-        apps.removeIf { it.packageName == preference.key }
+    private fun unregisterApp(packageName: String) {
+        apps.removeIf { it.packageName == packageName }
         systemSettings.userGames = apps
-        gameModeUtils.setIntervention(preference.key, null)
+        gameModeUtils.setIntervention(packageName, null)
         updateAppList()
     }
 
@@ -117,21 +111,20 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
     }
 
     override fun onPreferenceClick(preference: Preference): Boolean {
-        if (preference != makeAddPref) {
-            val message = context.getString(R.string.game_remove_message, preference.title)
-            AlertDialog.Builder(context).setTitle(R.string.game_list_title)
-                .setMessage(message)
-                .setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                    dialog.cancel()
-                }
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    unregisterApp(preference)
-                }
-                .show()
-        } else {
-            parentActivity?.startActivity(Intent(context, AppSelectorActivity::class.java))
+        if (preference != makeAddPref && ::registeredAppClickAction.isInitialized) {
+            registeredAppClickAction(preference.key)
         }
         return true
+    }
+
+    fun onRegisteredAppClick(action: (String) -> Unit) {
+        registeredAppClickAction = action
+    }
+
+    fun usePerAppResult(result: ActivityResult?) {
+        result?.takeIf { it.resultCode == Activity.RESULT_OK }
+            ?.data?.getStringExtra(PerAppSettingsFragment.PREF_UNREGISTER)
+            ?.let { unregisterApp(it) }
     }
 
     fun useSelectorResult(result: ActivityResult?) {
@@ -139,17 +132,6 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
             ?.data?.getStringExtra(EXTRA_APP)
             ?.let { registerApp(it) }
     }
-
-    private val parentActivity: Activity?
-        get() {
-            if (context is Activity)
-                return context as Activity
-
-            if (context is ContextThemeWrapper && (context as ContextThemeWrapper).baseContext is Activity)
-                return (context as ContextThemeWrapper).baseContext as Activity
-            return null
-        }
-
 
     companion object {
         const val KEY_ADD_GAME = "add_game"

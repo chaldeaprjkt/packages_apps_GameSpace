@@ -44,6 +44,13 @@ class SettingsFragment : Hilt_SettingsFragment(), Preference.OnPreferenceChangeL
             apps?.useSelectorResult(it)
         }
 
+    private val perAppResult =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            apps?.usePerAppResult(it)
+        }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
     }
@@ -51,6 +58,11 @@ class SettingsFragment : Hilt_SettingsFragment(), Preference.OnPreferenceChangeL
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         apps = findPreference(Settings.System.GAMESPACE_GAME_LIST)
+        apps?.onRegisteredAppClick {
+            perAppResult.launch(Intent(context, PerAppSettingsActivity::class.java).apply {
+                putExtra(PerAppSettingsActivity.EXTRA_PACKAGE, it)
+            })
+        }
 
         findPreference<Preference>(AppListPreferences.KEY_ADD_GAME)
             ?.setOnPreferenceClickListener {
@@ -62,6 +74,11 @@ class SettingsFragment : Hilt_SettingsFragment(), Preference.OnPreferenceChangeL
             isChecked = settings.suppressFullscreenIntent
             onPreferenceChangeListener = this@SettingsFragment
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        apps?.updateAppList()
     }
 
     override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {

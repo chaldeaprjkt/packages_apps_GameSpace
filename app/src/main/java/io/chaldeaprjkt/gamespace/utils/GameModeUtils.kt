@@ -17,15 +17,17 @@ package io.chaldeaprjkt.gamespace.utils
 
 import android.app.GameManager
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.IDeviceIdleController
 import android.os.RemoteException
 import android.os.ServiceManager
 import android.provider.DeviceConfig
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.GameConfig
+import io.chaldeaprjkt.gamespace.data.GameConfig.Companion.asConfig
 import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.data.UserGame
-import io.chaldeaprjkt.gamespace.data.GameConfig.Companion.asConfig
 import javax.inject.Inject
 
 class GameModeUtils @Inject constructor(private val context: Context) {
@@ -54,13 +56,17 @@ class GameModeUtils @Inject constructor(private val context: Context) {
     fun setActiveGameMode(systemSettings: SystemSettings, mode: Int) {
         val packageName = activeGame?.packageName ?: return
         manager?.setGameMode(packageName, mode)
-        UserGame(packageName, mode).let {
-            systemSettings.userGames =
-                systemSettings.userGames.filter { x -> x.packageName != it.packageName }
-                    .toMutableList()
-                    .apply { add(it) }
-            activeGame = it
-        }
+        activeGame = setGameModeFor(packageName, systemSettings, mode)
+    }
+
+    fun setGameModeFor(packageName: String, systemSettings: SystemSettings, mode: Int): UserGame {
+        val data = UserGame(packageName, mode)
+        systemSettings.userGames = systemSettings.userGames
+            .filter { x -> x.packageName != packageName }
+            .toMutableList()
+            .apply { add(data) }
+
+        return data
     }
 
     fun setupBatteryMode(enable: Boolean) {

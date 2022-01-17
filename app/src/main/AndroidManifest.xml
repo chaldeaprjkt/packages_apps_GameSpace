@@ -40,7 +40,12 @@
             android:exported="true" />
 
         <activity
-            android:name="io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity"
+            android:name=".settings.PerAppSettingsActivity"
+            android:excludeFromRecents="true"
+            android:exported="false" />
+
+        <activity
+            android:name=".preferences.appselector.AppSelectorActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:label="@string/app_selector_label" />

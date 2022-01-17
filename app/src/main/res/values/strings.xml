@@ -53,4 +53,14 @@
     <string name="suppress_fullscreen_intent_title">Block fullscreen event</string>
     <string name="suppress_fullscreen_intent_summary">Prevent fullscreen events like incoming calls from appearing while in-game</string>
 
+    <string name="per_app_title">Configure Game</string>
+    <string name="per_app_mode_title">Preferred Mode</string>
+    <string-array name="per_app_preferred_mode_entries">
+        <item>Standard</item>
+        <item>Performance</item>
+        <item>Battery</item>
+    </string-array>
+
+    <string name="per_app_unregister">Remove %1$s from library</string>
+
 </resources>
