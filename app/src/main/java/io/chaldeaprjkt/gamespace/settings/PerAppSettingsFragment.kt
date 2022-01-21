@@ -72,6 +72,11 @@ class PerAppSettingsFragment : Hilt_PerAppSettingsFragment(),
             onPreferenceChangeListener = this@PerAppSettingsFragment
         }
         findPreference<SwitchPreference>(PREF_USE_ANGLE)?.apply {
+            context?.resources?.getBoolean(R.bool.config_allow_per_app_angle_usage)?.let {
+                isVisible = it
+                if (!it) return@apply
+            }
+
             if (gameModeUtils.findAnglePackage()?.isEnabled != true) {
                 isEnabled = false
                 summary = context.getString(R.string.cant_find_angle_pkg)
