@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    Copyright (C) Chaldeaprjkt
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+  -->
+
+<resources>
+    <string name="settings_title">Game Space</string>
+    <string name="settings_summary">Verwalten Sie Ihre Spieleinstellungen</string>
+    <string name="app_selector_label">Wählen Sie ein Spiel</string>
+    <string name="auto_brightness_disabled_title">Auto-Helligkeit deaktivieren</string>
+    <string name="auto_brightness_disabled_summary">Behalten Sie die Helligkeit im Spiel bei</string>
+    <string name="heads_up_disabled_title">Heads-up deaktivieren</string>
+    <string name="heads_up_disabled_summary">Deaktivieren der Benachrichtigungsvorschau im Spiel</string>
+    <string name="game_list_title">Bibliothek</string>
+    <string name="game_remove_message">Bist Du sicher, dass du %1$s aus Deiner Bibliothek entfernen möchtest ?</string>
+    <string name="app_search_title">Suche</string>
+    <string name="three_screenshot_disabled_summary">Vorübergehende Deaktivierung der Screenshotgeste mit drei Fingern im Spiel</string>
+    <string name="three_screenshot_disabled_title">Wischen für Bildschirmfoto deaktivieren</string>
+    <string name="chaldea">chaldeaprjkt</string>
+    <string name="state_enabled">aktiviert</string>
+    <string name="state_disabled">daktiviert</string>
+    <!-- Game Mode Name - sorted by GameManager's enum, do not modify the sequence! -->
+    <string name="game_mode_title">Modus</string>
+    <string-array name="game_mode_names">
+        <item>Nicht unterstützt</item>
+        <item>Standard</item>
+        <item>Performance</item>
+        <item>Akkuschonend</item>
+    </string-array>
+    <string name="heads_up_title">Heads-up</string>
+    <string name="fps_Info_title">FPS-Info</string>
+    <string name="stay_awake_title">Bildschirm wach halten</string>
+    <string name="stay_awake_summary">Bildschirm während des Spiels wach halten</string>
+
+    <string name="ringer_mode_title">Klingelmodus im Spiel</string>
+    <string-array name="ringer_mode_entries">
+        <item>Still</item>
+        <item>Vibration</item>
+        <item>Normal</item>
+    </string-array>
+
+    <string name="suppress_fullscreen_intent_title">Vollbild-Ereignisse blockieren</string>
+    <string name="suppress_fullscreen_intent_summary">Verhindern, dass Vollbild-Ereignisse wie eingehende Anrufe im Spiel angezeigt werden</string>
+
+</resources>
