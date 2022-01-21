@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    Copyright (C) Chaldeaprjkt
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+  -->
+
+<resources>
+    <string name="settings_title">游戏空间</string>
+    <string name="settings_summary">管理您的游戏设置</string>
+    <string name="app_selector_label">选择您的游戏</string>
+    <string name="auto_brightness_disabled_title">禁用自动亮度</string>
+    <string name="auto_brightness_disabled_summary">在游戏中保持亮度稳定</string>
+    <string name="heads_up_disabled_title">禁用悬浮通知</string>
+    <string name="heads_up_disabled_summary">在游戏中禁用悬浮通知</string>
+    <string name="game_list_title">游戏库</string>
+    <string name="game_remove_message">确定从你的游戏库中删除 %1$s 吗?</string>
+    <string name="app_search_title">搜索</string>
+    <string name="three_screenshot_disabled_summary">游戏中临时禁用三指截图手势</string>
+    <string name="three_screenshot_disabled_title">禁用三指截图</string>
+    <string name="chaldea">chaldeaprjkt</string>
+    <string name="state_enabled">已启用</string>
+    <string name="state_disabled">禁用</string>
+    <!-- Game Mode Name - sorted by GameManager's enum, do not modify the sequence! -->
+    <string name="game_mode_title">游戏模式</string>
+    <string-array name="game_mode_names">
+        <item>无</item>
+        <item>均衡</item>
+        <item>性能</item>
+        <item>省电</item>
+    </string-array>
+    <string name="heads_up_title">警告</string>
+    <string name="fps_Info_title">帧率信息</string>
+    <string name="stay_awake_title">永不息屏</string>
+    <string name="stay_awake_summary">在游戏中保持亮屏</string>
+
+    <string name="ringer_mode_title">游戏内铃声</string>
+    <string-array name="ringer_mode_entries">
+        <item>静音</item>
+        <item>振动</item>
+        <item>默认</item>
+    </string-array>
+
+    <string name="suppress_fullscreen_intent_title">阻止全屏事件</string>
+    <string name="suppress_fullscreen_intent_summary">防止游戏中出现诸如来电之类的全屏事件</string>
+</resources>
