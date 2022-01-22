@@ -19,7 +19,7 @@
     <string name="settings_summary">Verwalten Sie Ihre Spieleinstellungen</string>
     <string name="app_selector_label">Wählen Sie ein Spiel</string>
     <string name="auto_brightness_disabled_title">Auto-Helligkeit deaktivieren</string>
-    <string name="auto_brightness_disabled_summary">Behalten Sie die Helligkeit im Spiel bei</string>
+    <string name="auto_brightness_disabled_summary">Die Helligkeit im Spiel beibehalten</string>
     <string name="heads_up_disabled_title">Heads-up deaktivieren</string>
     <string name="heads_up_disabled_summary">Deaktivieren der Benachrichtigungsvorschau im Spiel</string>
     <string name="game_list_title">Bibliothek</string>
@@ -52,5 +52,19 @@
 
     <string name="suppress_fullscreen_intent_title">Vollbild-Ereignisse blockieren</string>
     <string name="suppress_fullscreen_intent_summary">Verhindern, dass Vollbild-Ereignisse wie eingehende Anrufe im Spiel angezeigt werden</string>
+
+    <string name="per_app_title">Spiel konfigurieren</string>
+    <string name="per_app_mode_title">Bevorzugter Modus</string>
+    <string-array name="per_app_preferred_mode_entries">
+        <item>Standard</item>
+        <item>Performance</item>
+        <item>Akkuschonend</item>
+    </string-array>
+
+    <string name="per_app_angle_title">ANGLE verwenden (experimentell)</string>
+    <string name="per_app_angle_summary">Verwenden des ANGLE-Renderers anstelle der nativen GLES-Treiber.\nWARNUNG!! Kann Spielgrafiken beschädigen, mit Vorsicht verwenden!</string>
+    <string name="cant_find_angle_pkg">ANGLE ist auf Deinem System nicht verfügbar</string>
+
+    <string name="per_app_unregister">%1$s aus der Bibliothek entfernen</string>
 
 </resources>
