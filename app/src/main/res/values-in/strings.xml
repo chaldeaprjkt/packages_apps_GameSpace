@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    Copyright (C) Chaldeaprjkt
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+  -->
+
+<resources>
+    <string name="settings_title">Game Space</string>
+    <string name="settings_summary">Kelola pengaturan permainan Anda</string>
+    <string name="app_selector_label">Pilih permainan Anda</string>
+    <string name="auto_brightness_disabled_title">Nonaktifkan kecerahan otomatis</string>
+    <string name="auto_brightness_disabled_summary">Jaga kecerahan tetap stabil saat dalam permainan</string>
+    <string name="heads_up_disabled_title">Nonaktifkan notifikasi mengambang</string>
+    <string name="heads_up_disabled_summary">Nonaktifkan pemberitahuan notifikasi mengambang saat dalam permainan</string>
+    <string name="game_list_title">Daftar permainan</string>
+    <string name="game_remove_message">Anda yakin ingin menghapus %1$s dari daftar permainan Anda?</string>
+    <string name="app_search_title">Cari</string>
+    <string name="three_screenshot_disabled_summary">Nonaktifkan sementara gerakan usap tiga jari untuk tangkapan layar saat dalam permainan</string>
+    <string name="three_screenshot_disabled_title">Nonaktifkan gerakan usap untuk tangkapan layar</string>
+    <string name="chaldea">chaldeaprjkt</string>
+    <string name="state_enabled">aktifkan</string>
+    <string name="state_disabled">nonaktifkan</string>
+    <!-- Game Mode Name - sorted by GameManager's enum, do not modify the sequence! -->
+    <string name="game_mode_title">Mode</string>
+    <string-array name="game_mode_names">
+        <item>Tidak didukung</item>
+        <item>Standar</item>
+        <item>Performa</item>
+        <item>Baterai</item>
+    </string-array>
+    <string name="heads_up_title">Notifikasi mengambang</string>
+    <string name="fps_Info_title">Info FPS</string>
+    <string name="stay_awake_title">Tetap terbangun</string>
+    <string name="stay_awake_summary">Jaga agar layar tetap terbangun saat dalam permainan</string>
+
+    <string name="ringer_mode_title">Mode dering dalam permainan</string>
+    <string-array name="ringer_mode_entries">
+        <item>Diam</item>
+        <item>Getar</item>
+        <item>Normal</item>
+    </string-array>
+
+    <string name="suppress_fullscreen_intent_title">Blokir acara layar penuh</string>
+    <string name="suppress_fullscreen_intent_summary">Cegah acara layar penuh seperti panggilan masuk muncul saat dalam permainan</string>
+
+    <string name="per_app_title">Konfigurasi Permainan</string>
+    <string name="per_app_mode_title">Mode Pilihan</string>
+    <string-array name="per_app_preferred_mode_entries">
+        <item>Standar</item>
+        <item>Performa</item>
+        <item>Baterai</item>
+    </string-array>
+
+    <string name="per_app_angle_title">Gunakan ANGLE (percobaan)</string>
+    <string name="per_app_angle_summary">Menggunakan perender ANGLE sebagai pengganti driver GLES asli.\nWARNING!! Dapat merusak grafik permainan, gunakan dengan hati-hati!</string>
+    <string name="cant_find_angle_pkg">ANGLE tidak tersedia di sistem Anda</string>
+
+    <string name="per_app_unregister">Hapus %1$s dari daftar</string>
+
+</resources>
