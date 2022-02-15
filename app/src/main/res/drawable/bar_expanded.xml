@@ -15,6 +15,6 @@
   -->
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/barBackground" />
+    <solid android:color="@color/barBackgroundExpanded" />
     <corners android:radius="32dp" />
 </shape>

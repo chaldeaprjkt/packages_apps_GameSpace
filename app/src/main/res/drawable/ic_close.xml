@@ -20,6 +20,6 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:fillColor="?attr/colorControlNormal"
+        android:fillColor="@color/onBarBackground"
         android:pathData="M16.2426,17.6569 L12,13.4142 7.7574,17.6569 6.3431,16.2426 10.5858,12 6.3431,7.7574 7.7574,6.3431 12,10.5858 16.2426,6.3431 17.6569,7.7574 13.4142,12l4.2426,4.2426z" />
 </vector>

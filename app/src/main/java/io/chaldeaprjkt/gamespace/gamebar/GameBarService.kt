@@ -241,7 +241,7 @@ class GameBarService : Hilt_GameBarService() {
 
     private fun updateContainerGaps() {
         if (barExpanded) {
-            barView.updatePadding(16, 16, 16, 16)
+            barView.updatePadding(8, 8, 8, 8)
             (barView.layoutParams as ViewGroup.MarginLayoutParams)
                 .updateMargins(right = 48, left = 48)
         } else {

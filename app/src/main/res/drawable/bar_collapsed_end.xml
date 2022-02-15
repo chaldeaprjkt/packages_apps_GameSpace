@@ -15,7 +15,7 @@
   -->
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/barBackground" />
+    <solid android:color="@color/barBackgroundCollapsed" />
     <corners
         android:bottomLeftRadius="@dimen/actions_size"
         android:topLeftRadius="@dimen/actions_size" />
