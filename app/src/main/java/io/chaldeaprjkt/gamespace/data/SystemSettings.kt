@@ -16,6 +16,7 @@
 package io.chaldeaprjkt.gamespace.data
 
 import android.content.Context
+import android.os.UserHandle
 import android.provider.Settings
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 import javax.inject.Inject
@@ -40,52 +41,67 @@ class SystemSettings @Inject constructor(
 
     var autoBrightness
         get() =
-            Settings.System.getInt(
+            Settings.System.getIntForUser(
                 resolver,
                 Settings.System.SCREEN_BRIGHTNESS_MODE,
-                Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+                Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC,
+                UserHandle.USER_CURRENT
             ) ==
                     Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
         set(auto) {
-            Settings.System.putInt(
+            Settings.System.putIntForUser(
                 resolver,
                 Settings.System.SCREEN_BRIGHTNESS_MODE,
                 if (auto) Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
-                else Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                else Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL,
+                UserHandle.USER_CURRENT
             )
         }
 
     var threeScreenshot
-        get() = Settings.System.getInt(resolver, Settings.System.THREE_FINGER_GESTURE, 0) == 1
+        get() = Settings.System.getIntForUser(
+            resolver, Settings.System.THREE_FINGER_GESTURE, 0,
+            UserHandle.USER_CURRENT
+        ) == 1
         set(it) {
-            Settings.System.putInt(resolver, Settings.System.THREE_FINGER_GESTURE, it.toInt())
+            Settings.System.putIntForUser(
+                resolver, Settings.System.THREE_FINGER_GESTURE,
+                it.toInt(), UserHandle.USER_CURRENT
+            )
         }
 
     var suppressFullscreenIntent
-        get() = Settings.System.getInt(
+        get() = Settings.System.getIntForUser(
             resolver,
             Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT,
-            0
+            0,
+            UserHandle.USER_CURRENT
         ) == 1
         set(it) {
-            Settings.System.putInt(
+            Settings.System.putIntForUser(
                 resolver,
                 Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT,
-                it.toInt()
+                it.toInt(),
+                UserHandle.USER_CURRENT
             )
         }
 
     var userGames
         get() =
-            Settings.System.getString(resolver, Settings.System.GAMESPACE_GAME_LIST)
+            Settings.System.getStringForUser(
+                resolver, Settings.System.GAMESPACE_GAME_LIST,
+                UserHandle.USER_CURRENT
+            )
                 ?.split(";")
                 ?.toList()?.filter { it.isNotEmpty() }
                 ?.map { UserGame.fromSettings(it) } ?: emptyList()
         set(games) {
-            Settings.System.putString(
-                resolver, Settings.System.GAMESPACE_GAME_LIST,
+            Settings.System.putStringForUser(
+                resolver,
+                Settings.System.GAMESPACE_GAME_LIST,
                 if (games.isEmpty()) "" else
-                    games.joinToString(";") { it.toString() }
+                    games.joinToString(";") { it.toString() },
+                UserHandle.USER_CURRENT
             )
             gameModeUtils.setupBatteryMode(games.isNotEmpty())
         }
